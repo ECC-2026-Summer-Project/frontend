@@ -1,0 +1,71 @@
+/* ============================================================
+   심리투자 - 전역 디자인 토큰
+   기존 목업(로그인_종목리스트_설정.html) 기준으로 그대로 가져옴
+   ============================================================ */
+:root {
+  --ink: #0f1117;
+  --surface: #171923;
+  --surface2: #1e212c;
+  --surface3: #262a38;
+  --line: #2b2f3d;
+  --text: #f5f6f8;
+  --muted: #8b8fa3;
+  --muted2: #5c6070;
+  --up: #ff4757;
+  --down: #4c8dff;
+  --alert: #ffc93c;
+  --alert-deep: #ff9f1c;
+  --mint: #35d399;
+  --violet: #b45cff;
+  --danger: #ff4757;
+
+  --font:
+    -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo',
+    'Malgun Gothic', sans-serif;
+  --mono: 'SF Mono', 'Roboto Mono', Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: #0b0c10;
+  font-family: var(--font);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button,
+input {
+  font-family: var(--font);
+}
+
+button {
+  cursor: pointer;
+}
+
+/* 스크린 리더 전용 텍스트 (접근성) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

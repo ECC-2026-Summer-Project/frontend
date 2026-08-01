@@ -1,0 +1,59 @@
+.btn {
+  width: 100%;
+  padding: 15px 0;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 800;
+  border: none;
+  font-family: var(--font);
+  transition:
+    opacity 0.15s ease,
+    transform 0.05s ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* primary: 흰 배경 + 어두운 텍스트 (목업 .btn-primary) */
+.primary {
+  background: var(--text);
+  color: var(--ink);
+}
+
+.primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* guest/outline: 투명 배경 + 테두리 (목업 .btn-guest) */
+.outline {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 14px 0;
+}
+
+.outline:hover:not(:disabled) {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* danger: 회원 탈퇴 등 위험한 액션 */
+.danger {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.danger:hover:not(:disabled) {
+  background: rgba(255, 71, 87, 0.1);
+}
