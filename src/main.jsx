@@ -5,7 +5,7 @@ import App from './App.jsx';
 import { worker } from './mock/browser.ts';
 import { Global } from '@emotion/react';
 
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.DEV) {
   worker.start().then(() => {
     createRoot(document.getElementById('root')).render(
       <div>
