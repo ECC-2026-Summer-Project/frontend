@@ -37,7 +37,7 @@
   width: 28px;
   height: 28px;
   border-radius: 9px;
-  background: linear-gradient(135deg, var(--violet), var(--down));
+  object-fit: cover;
 }
 
 .headline {
@@ -57,7 +57,7 @@
   font-size: 13.5px;
   color: var(--muted);
   margin-top: 16px;
-  max-width: 380px;
+  max-width: 450px;
   line-height: 1.6;
 }
 

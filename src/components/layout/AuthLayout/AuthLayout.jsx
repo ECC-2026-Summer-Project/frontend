@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import logo from '../../../assets/investme_logo.png';
 import styles from './AuthLayout.module.css';
 
 /**
@@ -6,7 +7,7 @@ import styles from './AuthLayout.module.css';
  * 왼쪽 브랜드 패널 + 오른쪽 폼 영역, 상단 탭으로 두 페이지를 사용
  *
  * @param {'login'|'signup'} activeTab
- * @param {string} title - 폼 상단 타이틀 (예: "다시 오셨네요")
+ * @param {string} title
  * @param {string} description - 타이틀 아래 설명
  */
 function AuthLayout({ activeTab, title, description, children }) {
@@ -14,8 +15,8 @@ function AuthLayout({ activeTab, title, description, children }) {
     <div className={styles.body}>
       <div className={styles.brand}>
         <div className={styles.logo}>
-          <span className={styles.mark} />
-          심리투자
+          <img src={logo} alt="인베스트미 로고" className={styles.mark} />
+          인베스트미
         </div>
 
         <div>
@@ -40,9 +41,6 @@ function AuthLayout({ activeTab, title, description, children }) {
         </div>
         <div className={`${styles.floatToast} ${styles.ft2}`}>
           🤖 AI 추천 종목
-        </div>
-        <div className={`${styles.floatToast} ${styles.ft3}`}>
-          ⏰ 3분 후 종료
         </div>
       </div>
 
