@@ -1,8 +1,25 @@
 import Header from '../../components/layout/Header/Header';
 import { useAuth } from '../../hooks/useAuth';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 function HomePage() {
   const { user, isAuthenticated } = useAuth();
+  const [isUserAvailable, setIsUserAvailable] = useState(false);
+  const [searchParams] = useSearchParams();
+  const userId = searchParams.get('userId');
+  console.log(userId);
+  async function checkId(userId) {
+    const response = await fetch(`/api/users/check-id?userId=${userId}`);
+    const data = await response.json();
+    console.log(data);
+  }
+
+  useEffect(() => {
+    checkId(userId);
+  }, [userId]);
+
+  console.log(isUserAvailable);
 
   return (
     <div>
