@@ -1,0 +1,368 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--ink);
+}
+
+.homeBody {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.up {
+  color: var(--up);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.down {
+  composes: up;
+  color: var(--down);
+}
+
+.colLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 300px;
+  flex-shrink: 0;
+  padding: 28px 26px;
+  border-right: 1px solid var(--line);
+}
+
+.accountCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 24px 22px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(160deg, #1b1e29 13.3%, #12141c 80%);
+}
+
+.cardLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.cardValue {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sectionTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sectionLink {
+  font-size: 11px;
+  color: var(--muted2);
+}
+
+.holdingsList {
+  width: 100%;
+  list-style: none;
+}
+
+.holdingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.holdingRow:last-child {
+  border-bottom: none;
+}
+
+.holdingLeft {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.tickerBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--surface3);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.hInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.holdingName {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.holdingShares {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--muted2);
+}
+
+.holdingRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.holdingPrice {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.holdingRight .up,
+.holdingRight .down {
+  font-size: 10.5px;
+}
+
+.colCenter {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  flex: 1 0 0;
+  min-width: 0;
+  padding: 28px 26px;
+}
+
+.trendingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.tableHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted2);
+}
+
+.tableHeadStock {
+  width: 260px;
+}
+
+.tableRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.stockNameWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stockName {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stockPrice {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tag {
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tagUp {
+  background: color-mix(in srgb, var(--up) 15%, transparent);
+  color: var(--up);
+}
+
+.tagViolet {
+  background: color-mix(in srgb, var(--violet) 15%, transparent);
+  color: var(--violet);
+}
+
+.newsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.newsList {
+  width: 100%;
+  list-style: none;
+}
+
+.newsItem {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.newsItem:last-child {
+  border-bottom: none;
+}
+
+.newsCategory {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted2);
+}
+
+.newsText {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #dde0e6;
+}
+
+/* ===== 우측: AI 추천 ===== */
+.colRight {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 320px;
+  flex-shrink: 0;
+  padding: 28px 26px;
+  border-left: 1px solid var(--line);
+}
+
+.pickCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.pickHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.pickName {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pickHead ~ .up,
+.pickHead ~ .down {
+  font-size: 12px;
+}
+
+/* ===== 하단 알림 토스트 ===== */
+.triggerToast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 360px;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--alert) 35%, transparent);
+  border-radius: 16px;
+  background: linear-gradient(to right, #241b0e, #2a1e10);
+  box-shadow: 0 24px 50px -14px
+    color-mix(in srgb, var(--alert-deep) 40%, transparent);
+}
+
+.toastIcon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+}
+
+.toastText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.toastTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffe7ae;
+}
+
+.toastSubtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #b8985c;
+}
+
+.toastCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: var(--alert);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+}

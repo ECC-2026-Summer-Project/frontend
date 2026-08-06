@@ -5,7 +5,6 @@ import { useAuth } from '../../../hooks/useAuth';
 const MENU_ITEMS = [
   { label: '홈', path: '/' },
   { label: '주식', path: '/stocks' },
-  { label: '레포트', path: '/reports' },
   { label: '설정', path: '/settings' },
 ];
 
@@ -26,15 +25,22 @@ function Header() {
       </Link>
 
       <nav className={styles.menu}>
-        {MENU_ITEMS.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={location.pathname === item.path ? styles.active : ''}
-          >
-            {item.label}
-          </Link>
-        ))}
+        {MENU_ITEMS.map((item) => {
+          // '/'는 정확히 일치할 때만, 나머지는 하위 경로(예: /stocks/:id)도 활성 처리
+          const isActive =
+            item.path === '/'
+              ? location.pathname === '/'
+              : location.pathname.startsWith(item.path);
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={isActive ? styles.active : ''}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className={styles.right}>
