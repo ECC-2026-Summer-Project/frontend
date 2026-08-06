@@ -4,6 +4,7 @@ const existingUsers = [
   {
     user_id: 'invest_lover',
     password: 'abcd1234',
+    passwordChangedAt: '2026-03-12T00:00:00.000Z',
     balance: 10000000,
     holdings: [],
     watchlist: [
@@ -14,6 +15,7 @@ const existingUsers = [
   {
     user_id: 'test1234',
     password: '12345678',
+    passwordChangedAt: '2026-03-12T00:00:00.000Z',
     balance: 10000000,
     holdings: [],
     watchlist: [],
@@ -154,56 +156,6 @@ export const handlers = [
         },
         error: null,
       },
-      { status: 200 },
-    );
-  }),
-
-  //회원탈퇴-------------------------------------------------------------------
-  http.delete('/api/users/me', async ({ request }) => {
-    const tokenInfo = getUserIdFromToken(request);
-    const foundUser = existingUsers.find(
-      (user) => user.user_id === tokenInfo?.user_id,
-    );
-
-    if (!tokenInfo || !foundUser) {
-      return HttpResponse.json(
-        {
-          success: false,
-          data: null,
-          error: {
-            code: 'UNAUTHORIZED',
-            message: '인증 정보가 유효하지 않습니다.',
-          },
-        },
-        { status: 401 },
-      );
-    }
-
-    const body = await request.json();
-    const { password } = body;
-
-    if (foundUser.password !== password) {
-      return HttpResponse.json(
-        {
-          success: false,
-          data: null,
-          error: {
-            code: 'INVALID_PASSWORD',
-            message: '비밀번호가 일치하지 않습니다.',
-          },
-        },
-        { status: 401 },
-      );
-    }
-
-    // soft delete: row는 유지하고 deletedAt만 채워 세션/거래/리포트 연관 데이터 보존
-    foundUser.deletedAt = new Date().toISOString();
-
-    // 탈퇴 즉시 현재 accessToken 무효화 (재사용 방지)
-    invalidatedTokens.add(tokenInfo.token);
-
-    return HttpResponse.json(
-      { success: true, data: { deleted: true }, error: null },
       { status: 200 },
     );
   }),
@@ -502,10 +454,125 @@ export const handlers = [
   }),
   //=======================================주식창-기업별 주식창===========================================
   //요약----------------------------------------------------------------------
-
+  http.get('/api/stocks/:stockId/summary', ({ request, params }) => {}),
   //차트----------------------------------------------------------------------
+  http.get('/api/stocks/:stockId/chart', ({ request, params }) => {}),
   //호가----------------------------------------------------------------------
+  http.get('/api/stocks/:stockId/orderbook', ({ request, params }) => {}),
   //체결----------------------------------------------------------------------
   //배당----------------------------------------------------------------------
   //기업정보-------------------------------------------------------------------
+
+  //=======================================설정===========================================================
+  //비밀번호 변경-------------------------------------------------------------------
+  http.patch('/api/users/me/password', async ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    const foundUser = existingUsers.find(
+      (user) => user.user_id === tokenInfo?.user_id,
+    );
+
+    if (!tokenInfo || !foundUser) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const body = await request.json();
+    const { currentPassword, newPassword } = body;
+
+    if (foundUser.password !== currentPassword) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'INVALID_PASSWORD',
+            message: '현재 비밀번호가 일치하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    foundUser.password = newPassword;
+    foundUser.passwordChangedAt = new Date().toISOString();
+
+    return HttpResponse.json(
+      {
+        success: true,
+        message: '비밀번호가 변경되었습니다.',
+        data: { passwordChangedAt: foundUser.passwordChangedAt },
+      },
+      { status: 200 },
+    );
+  }),
+  //로그아웃-------------------------------------------------------------------
+  //회원탈퇴-------------------------------------------------------------------
+  http.delete('/api/users/me', async ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    const foundUser = existingUsers.find(
+      (user) => user.user_id === tokenInfo?.user_id,
+    );
+
+    if (!tokenInfo || !foundUser) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const body = await request.json();
+    const { password } = body;
+
+    if (foundUser.password !== password) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'INVALID_PASSWORD',
+            message: '비밀번호가 일치하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    // soft delete: row는 유지하고 deletedAt만 채워 세션/거래/리포트 연관 데이터 보존
+    foundUser.deletedAt = new Date().toISOString();
+
+    // 탈퇴 즉시 현재 accessToken 무효화 (재사용 방지)
+    invalidatedTokens.add(tokenInfo.token);
+
+    return HttpResponse.json(
+      { success: true, data: { deleted: true }, error: null },
+      { status: 200 },
+    );
+  }),
+  //=======================================홈화면===========================================================
+  //계좌 화면-------------------------------------------------------------------------
+  //보유종목--------------------------------------------------------------------------
+  //레포트 생성------------------------------------------------------------------------
+  //레포트 출력------------------------------------------------------------------------
+  //급등주 추천------------------------------------------------------------------------
+  //AI 추천---------------------------------------------------------------------------
+  //뉴스 목록--------------------------------------------------------------------------
+  //뉴스 상세 조회---------------------------------------------------------------------
+  //뉴스 열람 기록---------------------------------------------------------------------
+  //Access 토크 재발급---------------------------------------------------------------------
 ];

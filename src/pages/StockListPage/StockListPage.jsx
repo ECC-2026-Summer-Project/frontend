@@ -92,8 +92,9 @@ function StockListPage() {
   }, [token, keyword, filter]);
 
   const visibleStocks = useMemo(() => {
-    if (filter === 'watch') return stocks.filter((s) => watchlist.has(s.stockId));
-    if (filter === 'ai') return []; // AI 추천 데이터 소스가 아직 없음 (기업정보/AI 추천 API 준비 중)
+    if (filter === 'watch')
+      return stocks.filter((s) => watchlist.has(s.stockId));
+    if (filter === 'ai') return [];
     return stocks;
   }, [stocks, filter, watchlist]);
 
@@ -161,7 +162,9 @@ function StockListPage() {
         </div>
 
         {error && <p className={styles.stateText}>{error}</p>}
-        {!error && loading && <p className={styles.stateText}>불러오는 중...</p>}
+        {!error && loading && (
+          <p className={styles.stateText}>불러오는 중...</p>
+        )}
         {!error && !loading && visibleStocks.length === 0 && (
           <p className={styles.stateText}>{emptyMessage}</p>
         )}
@@ -190,13 +193,17 @@ function StockListPage() {
                     e.stopPropagation();
                     toggleWatch(stock.stockId);
                   }}
-                  aria-label={isWatched ? '관심 종목에서 제거' : '관심 종목에 추가'}
+                  aria-label={
+                    isWatched ? '관심 종목에서 제거' : '관심 종목에 추가'
+                  }
                 >
                   {isWatched ? '★' : '☆'}
                 </button>
 
                 <div className={styles.cellCo}>
-                  <div className={styles.coBadge}>{tickerBadge(stock.name)}</div>
+                  <div className={styles.coBadge}>
+                    {tickerBadge(stock.name)}
+                  </div>
                   <div>
                     <p className={styles.coName}>{stock.name}</p>
                     <p className={styles.coCode}>{stock.stockId}</p>
@@ -215,10 +222,14 @@ function StockListPage() {
                 <p className={styles.colPrice}>
                   {stock.currentPrice.toLocaleString('ko-KR')}
                 </p>
-                <p className={`${styles.colRate} ${isUp ? styles.up : styles.down}`}>
+                <p
+                  className={`${styles.colRate} ${isUp ? styles.up : styles.down}`}
+                >
                   {formatRate(stock.changeRate)}
                 </p>
-                <p className={styles.colVolume}>{stock.volume.toLocaleString('ko-KR')}</p>
+                <p className={styles.colVolume}>
+                  {stock.volume.toLocaleString('ko-KR')}
+                </p>
 
                 <div className={styles.colTag}>
                   {tag && <span className={styles.tag}>{tag}</span>}
