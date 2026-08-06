@@ -1,8 +1,16 @@
 import { http, HttpResponse } from 'msw';
 
 const existingUsers = [
-  { user_id: 'invest_lover', password: 'abcd1234' },
-  { user_id: 'test1234', password: '12345678' },
+  {
+    user_id: 'invest_lover',
+    password: 'abcd1234',
+    passwordChangedAt: '2026-03-12T00:00:00.000Z',
+  },
+  {
+    user_id: 'test1234',
+    password: '12345678',
+    passwordChangedAt: '2026-03-12T00:00:00.000Z',
+  },
 ];
 
 // 탈퇴 등으로 무효화된 토큰 목록 (재사용 방지)
@@ -93,6 +101,57 @@ export const handlers = [
           user_id: foundUser.user_id,
         },
         error: null,
+      },
+      { status: 200 },
+    );
+  }),
+
+  //비밀번호 변경
+  http.patch('/api/users/me/password', async ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    const foundUser = existingUsers.find(
+      (user) => user.user_id === tokenInfo?.user_id,
+    );
+
+    if (!tokenInfo || !foundUser) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const body = await request.json();
+    const { currentPassword, newPassword } = body;
+
+    if (foundUser.password !== currentPassword) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'INVALID_PASSWORD',
+            message: '현재 비밀번호가 일치하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    foundUser.password = newPassword;
+    foundUser.passwordChangedAt = new Date().toISOString();
+
+    return HttpResponse.json(
+      {
+        success: true,
+        message: '비밀번호가 변경되었습니다.',
+        data: { passwordChangedAt: foundUser.passwordChangedAt },
       },
       { status: 200 },
     );
