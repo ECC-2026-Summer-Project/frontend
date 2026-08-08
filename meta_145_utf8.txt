@@ -1,0 +1,131 @@
+              <text id="137:58" name="›" x="657" y="23.5" width="5" height="16" />
+            </frame>
+          </frame>
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="145:536" name="비밀번호 변경" x="9998" y="1382" width="1440" height="820">
+    <frame id="145:537" name="topnav" x="0" y="0" width="1440" height="72">
+      <frame id="145:538" name="logo" x="40" y="23" width="108" height="26">
+        <rounded-rectangle id="145:539" name="mark" x="0" y="0" width="26" height="26" />
+        <text id="145:540" name="인베스트미" x="34" y="3.5" width="74" height="19" />
+      </frame>
+      <frame id="145:541" name="menu" x="660" y="28" width="131" height="16">
+        <text id="145:542" name="홈" x="0" y="0" width="13" height="16" />
+        <text id="145:543" name="주식" x="47" y="0" width="25" height="16" />
+        <text id="145:544" name="설정" x="106" y="0" width="25" height="16" />
+      </frame>
+      <frame id="145:545" name="right" x="1303" y="19" width="97" height="34">
+        <text id="145:546" name="김민준 님" x="0" y="10" width="47" height="14" />
+        <frame id="145:547" name="avatar" x="63" y="0" width="34" height="34">
+          <text id="145:548" name="MJ" x="8" y="10" width="18" height="14" />
+        </frame>
+      </frame>
+    </frame>
+    <frame id="145:549" name="settings-body" x="0" y="72" width="1440" height="748">
+      <frame id="145:550" name="settings-side" x="0" y="0" width="280" height="748">
+        <frame id="145:551" name="settings-profile" x="26" y="36" width="228" height="72">
+          <frame id="145:552" name="avatar" x="14" y="14" width="44" height="44">
+            <text id="145:553" name="MJ" x="12" y="13.5" width="20" height="17" />
+          </frame>
+          <frame id="145:554" name="profile-text" x="70" y="28" width="36" height="16">
+            <text id="145:555" name="김민준" x="0" y="0" width="36" height="16" />
+          </frame>
+        </frame>
+        <frame id="145:556" name="side-nav" x="26" y="134" width="228" height="160">
+          <frame id="145:557" name="계정" x="0" y="0" width="228" height="37">
+            <text id="145:558" name="계정" x="14" y="11" width="23" height="15" />
+          </frame>
+          <frame id="145:559" name="알림 · 이벤트" x="0" y="41" width="228" height="37">
+            <text id="145:560" name="알림 · 이벤트" x="14" y="11" width="71" height="15" />
+          </frame>
+          <frame id="145:561" name="데이터 · 초기화" x="0" y="82" width="228" height="37">
+            <text id="145:562" name="데이터 · 초기화" x="14" y="11" width="83" height="15" />
+          </frame>
+          <frame id="145:563" name="문의하기" x="0" y="123" width="228" height="37">
+            <text id="145:564" name="문의하기" x="14" y="11" width="46" height="15" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="145:565" name="settings-main" x="280" y="0" width="1160" height="748">
+        <frame id="145:566" name="set-group_계정" x="44" y="36" width="680" height="188">
+          <text id="145:567" name="계정" x="0" y="0" width="24" height="16" />
+          <frame id="145:568" name="card" x="0" y="30" width="680" height="158">
+            <frame id="145:569" name="비밀번호 변경" x="0" y="0" width="680" height="63">
+              <frame id="145:570" name="left" x="18" y="16" width="124" height="31">
+                <text id="145:571" name="비밀번호 변경" x="0" y="0" width="72" height="15" />
+                <text id="145:572" name="마지막 변경일: 2026.03.12" x="0" y="18" width="124" height="13" />
+              </frame>
+              <text id="145:573" name="›" x="657" y="23.5" width="5" height="16" />
+            </frame>
+            <frame id="145:574" name="아이디" x="0" y="63" width="680" height="47">
+              <frame id="145:575" name="left" x="18" y="16" width="35" height="15">
+                <text id="145:576" name="아이디" x="0" y="0" width="35" height="15" />
+              </frame>
+              <text id="145:577" name="minjun_kim" x="592" y="16.5" width="70" height="14" />
+            </frame>
+            <frame id="145:578" name="로그아웃" x="0" y="110" width="680" height="48">
+              <frame id="145:579" name="left" x="18" y="16.5" width="46" height="15">
+                <text id="145:580" name="로그아웃" x="0" y="0" width="46" height="15" />
+              </frame>
+              <text id="145:581" name="›" x="657" y="16" width="5" height="16" />
+            </frame>
+          </frame>
+        </frame>
+        <frame id="145:582" name="set-group_심리 트리거 알림 설정" x="44" y="258" width="680" height="282">
+          <text id="145:583" name="심리 트리거 알림 설정" x="0" y="0" width="117" height="16" />
+          <frame id="145:584" name="card" x="0" y="30" width="680" height="252">
+            <frame id="145:585" name="🔥 급등 알림" x="0" y="0" width="680" height="63">
+              <frame id="145:586" name="left" x="18" y="16" width="152" height="31">
+                <text id="145:587" name="🔥 급등 알림" x="0" y="0" width="65" height="15" />
+                <text id="145:588" name="종목이 급등할 때 알림을 받습니다" x="0" y="18" width="152" height="13" />
+              </frame>
+              <frame id="145:589" name="toggle" x="620" y="19.5" width="42" height="24" />
+            </frame>
+            <frame id="145:591" name="👥 군중심리 알림" x="0" y="63" width="680" height="63">
+              <frame id="145:592" name="left" x="18" y="16" width="150" height="31">
+                <text id="145:593" name="👥 군중심리 알림" x="0" y="0" width="88" height="15" />
+                <text id="145:594" name="다수가 매수한 종목을 알려줍니다" x="0" y="18" width="150" height="13" />
+              </frame>
+              <frame id="145:595" name="toggle" x="620" y="19.5" width="42" height="24" />
+            </frame>
+            <frame id="145:597" name="⏰ 카운트다운 알림" x="0" y="126" width="680" height="63">
+              <frame id="145:598" name="left" x="18" y="16" width="129" height="31">
+                <text id="145:599" name="⏰ 카운트다운 알림" x="0" y="0" width="99" height="15" />
+                <text id="145:600" name="한정 이벤트 알림을 받습니다" x="0" y="18" width="129" height="13" />
+              </frame>
+              <frame id="145:601" name="toggle" x="620" y="19.5" width="42" height="24" />
+            </frame>
+            <frame id="145:603" name="🤖 AI 추천 알림" x="0" y="189" width="680" height="63">
+              <frame id="145:604" name="left" x="18" y="16" width="149" height="31">
+                <text id="145:605" name="🤖 AI 추천 알림" x="0" y="0" width="80" height="15" />
+                <text id="145:606" name="AI가 추천하는 종목을 알려줍니다" x="0" y="18" width="149" height="13" />
+              </frame>
+              <frame id="145:607" name="toggle" x="620" y="19.5" width="42" height="24" />
+            </frame>
+          </frame>
+        </frame>
+        <frame id="145:609" name="set-group_데이터" x="44" y="574" width="680" height="156">
+          <text id="145:610" name="데이터" x="0" y="0" width="36" height="16" />
+          <frame id="145:611" name="card" x="0" y="30" width="680" height="126">
+            <frame id="145:612" name="투자 데이터 초기화" x="0" y="0" width="680" height="63">
+              <frame id="145:613" name="left" x="18" y="16" width="172" height="31">
+                <text id="145:614" name="투자 데이터 초기화" x="0" y="0" width="98" height="15" />
+                <text id="145:615" name="보유 종목과 거래 내역을 초기화합니다" x="0" y="18" width="172" height="13" />
+              </frame>
+              <text id="145:616" name="›" x="657" y="23.5" width="5" height="16" />
+            </frame>
+            <frame id="145:617" name="회원 탈퇴" x="0" y="63" width="680" height="63">
+              <frame id="145:618" name="left" x="18" y="16" width="170" height="31">
+                <text id="145:619" name="회원 탈퇴" x="0" y="0" width="49" height="15" />
+                <text id="145:620" name="모든 데이터가 영구적으로 삭제됩니다" x="0" y="18" width="170" height="13" />
+              </frame>
+              <text id="145:621" name="›" x="657" y="23.5" width="5" height="16" />
+            </frame>
+          </frame>
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+</canvas>
