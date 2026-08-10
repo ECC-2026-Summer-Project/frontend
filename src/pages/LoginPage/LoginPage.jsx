@@ -21,7 +21,7 @@ function LoginPage() {
     setLoading(true);
     try {
       await login(userId, password);
-      navigate('/');
+      navigate('/onboarding');
     } catch (err) {
       setError(err.message);
     } finally {

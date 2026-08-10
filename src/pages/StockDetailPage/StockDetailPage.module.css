@@ -1,0 +1,454 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--ink);
+}
+
+.stateText {
+  padding: 48px 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.stockBody {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.stockMain {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1 0 0;
+  min-width: 0;
+  padding: 32px 40px;
+  border-right: 1px solid var(--line);
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.titleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stockMeta {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.stockPrice {
+  font-family: var(--mono);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stockChange {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.up {
+  color: var(--up);
+}
+
+.down {
+  color: var(--down);
+}
+
+.starBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted2);
+  font-size: 16px;
+}
+
+.tabs {
+  display: flex;
+  gap: 26px;
+  width: 100%;
+  border-bottom: 1px solid var(--line);
+}
+
+.tab {
+  padding-bottom: 14px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted2);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font);
+}
+
+.tabActive {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+.chartBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 280px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.chartSvg {
+  width: 100%;
+  height: 100%;
+}
+
+.tabPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 280px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.priceGrid {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.priceList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.gridTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.gridRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.gridMuted {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.gridStrong {
+  color: var(--text);
+}
+
+/* ===== 우측: AI추천 / 매수·매도 / 기업정보 ===== */
+.stockSide {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 340px;
+  flex-shrink: 0;
+  padding: 32px 26px;
+}
+
+.aiBadge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(180, 92, 255, 0.3);
+  border-radius: 14px;
+  background: rgba(180, 92, 255, 0.1);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #d6b4ff;
+}
+
+.aiStars {
+  color: var(--violet);
+  font-size: 11px;
+}
+
+.buysell {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.buyBtn,
+.sellBtn {
+  flex: 1 0 0;
+  padding: 16px 0;
+  border-radius: 14px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font);
+}
+
+.buyBtn {
+  background: var(--up);
+  color: #fff;
+}
+
+.sellBtn {
+  background: var(--surface3);
+  border: 1px solid var(--down);
+  color: var(--down);
+}
+
+.sideTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #dde0e6;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ===== 매수/매도 주문 모달 ===== */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(5, 6, 10, 0.65);
+  z-index: 100;
+}
+
+.modalCard {
+  display: flex;
+  flex-direction: column;
+  width: 440px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface2);
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+.modalHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.modalHead button {
+  border: none;
+  background: none;
+  color: var(--muted2);
+  font-size: 14px;
+}
+
+.sideToggle {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  border-radius: 11px;
+  background: var(--surface);
+}
+
+.sideToggle button {
+  flex: 1 0 0;
+  padding: 10px 0;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: var(--muted2);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: var(--font);
+}
+
+.sideActive {
+  background: var(--surface3);
+  color: var(--text) !important;
+}
+
+.modalRows {
+  display: flex;
+  flex-direction: column;
+}
+
+.modalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.modalRow span:last-child {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.qtyInput {
+  width: 90px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  text-align: right;
+}
+
+.modalTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16px 0;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--surface);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.modalTotal strong {
+  font-family: var(--mono);
+  font-size: 18px;
+  color: var(--text);
+}
+
+.modalWarn {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.modalError {
+  margin-bottom: 12px;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+}
+
+.cancelBtn,
+.confirmBuy,
+.confirmSell {
+  flex: 1 0 0;
+  padding: 15px 0;
+  border: none;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 800;
+  font-family: var(--font);
+}
+
+.cancelBtn {
+  background: var(--surface3);
+  color: var(--muted);
+}
+
+.confirmBuy {
+  background: var(--up);
+  color: #fff;
+}
+
+.confirmSell {
+  background: var(--down);
+  color: #fff;
+}
+
+.confirmBuy:disabled,
+.confirmSell:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== 주문 완료 토스트 ===== */
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 320px;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--mint) 35%, transparent);
+  border-radius: 16px;
+  background: linear-gradient(to right, #10241c, #0d2019);
+  box-shadow: 0 24px 50px -14px color-mix(in srgb, var(--mint) 30%, transparent);
+  z-index: 200;
+}
+
+.toastDot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--mint);
+}
+
+.toastTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.toastSubtitle {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted2);
+}
