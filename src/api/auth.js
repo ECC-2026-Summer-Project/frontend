@@ -54,3 +54,20 @@ export async function checkUserId(userId) {
   }
   return body.data;
 }
+
+/** DELETE /api/users/me -> { deleted: true } */
+export async function deleteAccount(token, password) {
+  const response = await fetch('/api/users/me', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ password }),
+  });
+  const body = await response.json();
+  if (!body.success) {
+    throw new Error(body.error?.message || '회원 탈퇴에 실패했습니다.');
+  }
+  return body.data;
+}

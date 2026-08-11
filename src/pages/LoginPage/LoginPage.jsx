@@ -4,6 +4,7 @@ import AuthLayout from '../../components/layout/AuthLayout/AuthLayout';
 import Input from '../../components/common/Input/Input';
 import Button from '../../components/common/Button/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { hasSeenOnboarding } from '../../utils/onboardingStorage';
 import styles from './LoginPage.module.css';
 
 function LoginPage() {
@@ -20,8 +21,8 @@ function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await login(userId, password);
-      navigate('/onboarding');
+      const auth = await login(userId, password);
+      navigate(hasSeenOnboarding(auth.userId) ? '/home' : '/onboarding');
     } catch (err) {
       setError(err.message);
     } finally {

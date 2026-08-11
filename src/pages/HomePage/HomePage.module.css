@@ -366,3 +366,20 @@
   font-weight: 700;
   color: var(--ink);
 }
+
+/* ===== 하단 리포트 출력 버튼 (거래 조건 충족 시 트리거 토스트 대신 노출) ===== */
+.reportToast {
+  composes: triggerToast;
+  text-align: left;
+  transition: opacity 0.15s ease;
+}
+
+.reportToast:hover {
+  opacity: 0.92;
+}
+
+.reportText {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffe7ae;
+}

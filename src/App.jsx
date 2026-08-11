@@ -3,25 +3,37 @@ import OnboardingPage from './pages/OnboardingPage/OnboardingPage';
 import SignupPage from './pages/SignupPage/SignupPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import HomePage from './pages/HomePage/HomePage';
+import ReportPage from './pages/ReportPage/ReportPage';
 import StockListPage from './pages/StockListPage/StockListPage';
 import StockDetailPage from './pages/StockDetailPage/StockDetailPage';
 import SettingPage from './pages/SettingPage/SettingPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
-import { AuthProvider } from './hooks/useAuth';
+import { AuthProvider, useAuth } from './hooks/useAuth';
+
+/** 로그인 여부에 따라 "/" 접속 시 이동할 위치를 결정합니다. */
+function RootRedirect() {
+  const { isAuthenticated } = useAuth();
+  return <Navigate to={isAuthenticated ? '/home' : '/login'} replace />;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<Navigate to="/signup" replace />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/home" element={<HomePage />} />
+          <Route path="/" element={<RootRedirect />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/stocks" element={<StockListPage />} />
-          <Route path="/stocks/:stockId" element={<StockDetailPage />} />
-          <Route path="/settings" element={<SettingPage />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/report" element={<ReportPage />} />
+            <Route path="/stocks" element={<StockListPage />} />
+            <Route path="/stocks/:stockId" element={<StockDetailPage />} />
+            <Route path="/settings" element={<SettingPage />} />
+          </Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>
