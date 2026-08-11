@@ -14,5 +14,12 @@ export function loadWatchlist(userId) {
 }
 
 export function saveWatchlist(userId, set) {
-  localStorage.setItem(KEY_PREFIX + (userId || 'guest'), JSON.stringify([...set]));
+  localStorage.setItem(
+    KEY_PREFIX + (userId || 'guest'),
+    JSON.stringify([...set]),
+  );
+}
+
+export function clearWatchlist(userId) {
+  localStorage.removeItem(KEY_PREFIX + (userId || 'guest'));
 }

@@ -1,7 +1,10 @@
 import Header from '../../components/layout/Header/Header';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import pulseIcon from '../../assets/pulse.svg';
 import styles from './HomePage.module.css';
+
+// TODO: 실제로는 거래 횟수 등 리포트 생성 조건 충족 여부를 서버에서 받아와야 함
+const REPORT_READY = true;
 
 const accountSummary = {
   totalAsset: 1080000,
@@ -91,6 +94,8 @@ function tagClass(tagType) {
 }
 
 function HomePage() {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.home}>
       <Header />
@@ -211,16 +216,27 @@ function HomePage() {
         </section>
       </div>
 
-      <div className={styles.triggerToast}>
-        <img src={pulseIcon} alt="" className={styles.toastIcon} />
-        <div className={styles.toastText}>
-          <p className={styles.toastTitle}>{triggerToast.title}</p>
-          <p className={styles.toastSubtitle}>{triggerToast.subtitle}</p>
+      {REPORT_READY ? (
+        <button
+          type="button"
+          className={styles.reportToast}
+          onClick={() => navigate('/report')}
+        >
+          <img src={pulseIcon} alt="" className={styles.toastIcon} />
+          <span className={styles.reportText}>레포트 출력</span>
+        </button>
+      ) : (
+        <div className={styles.triggerToast}>
+          <img src={pulseIcon} alt="" className={styles.toastIcon} />
+          <div className={styles.toastText}>
+            <p className={styles.toastTitle}>{triggerToast.title}</p>
+            <p className={styles.toastSubtitle}>{triggerToast.subtitle}</p>
+          </div>
+          <Link to="/stocks" className={styles.toastCta}>
+            보기
+          </Link>
         </div>
-        <Link to="/stocks" className={styles.toastCta}>
-          보기
-        </Link>
-      </div>
+      )}
     </div>
   );
 }
