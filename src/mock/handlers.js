@@ -4,6 +4,7 @@ const existingUsers = [
   {
     user_id: 'invest_lover',
     password: 'abcd1234',
+    passwordChangedAt: '2026-03-12T00:00:00.000Z',
     balance: 10000000,
     holdings: [],
     watchlist: [
@@ -14,6 +15,7 @@ const existingUsers = [
   {
     user_id: 'test1234',
     password: '12345678',
+    passwordChangedAt: '2026-03-12T00:00:00.000Z',
     balance: 10000000,
     holdings: [],
     watchlist: [],

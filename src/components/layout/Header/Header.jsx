@@ -9,7 +9,7 @@ const MENU_ITEMS = [
   { label: '설정', path: '/settings' },
 ];
 
-/** 아이디에서 아바타에 표시할 두 글자를 뽑아냅니다. (예: minjun_kim -> MI) */
+/** 아이디에서 아바타에 표시할 두 글자를 뽑아내기(예: minjun_kim -> MI) */
 function getAvatarInitials(userId = '') {
   return userId.slice(0, 2).toUpperCase();
 }

@@ -15,16 +15,11 @@ const EVENT_ICONS = [
 ];
 
 const NEXT_BUTTON_LABEL = {
-  1: '시작하기',
+  1: '다음으로',
   2: '다음으로',
   3: '투자 시작하기',
 };
 
-/**
- * 온보딩 (1~3 / 3) - 서비스 소개
- * Figma: https://www.figma.com/design/8Bw3RnxaLuok7uLeStoiLD/인베스트미
- *  - 1/3 node-id=36-2, 2/3 node-id=41-2, 3/3 node-id=40-2
- */
 function OnboardingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -148,7 +143,11 @@ function OnboardingPage() {
 
         <div className={styles.nav}>
           {step > 1 && (
-            <button type="button" className={styles.prevButton} onClick={goPrev}>
+            <button
+              type="button"
+              className={styles.prevButton}
+              onClick={goPrev}
+            >
               이전
             </button>
           )}
