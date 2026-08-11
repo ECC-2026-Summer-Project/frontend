@@ -1,0 +1,544 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--ink);
+}
+
+.body {
+  display: flex;
+  gap: 60px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 40px 60px 60px;
+}
+
+.up {
+  color: var(--up);
+}
+
+.down {
+  composes: up;
+  color: var(--down);
+}
+
+.stateText {
+  padding: 48px 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 40px 0;
+}
+
+.emptyState .shareBtn {
+  width: auto;
+  margin-top: 0;
+  padding: 14px 24px;
+  text-decoration: none;
+}
+
+/* ===== 좌측: 투자 성향 카드 ===== */
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 340px;
+  flex-shrink: 0;
+  padding-top: 10px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.66px;
+  color: var(--muted2);
+}
+
+.date {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted2);
+}
+
+.typeBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 190px;
+  height: 190px;
+  margin-top: 22px;
+  border: 1px solid rgba(180, 92, 255, 0.4);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 55%,
+    #3a2452,
+    #2a1c39 55%,
+    #1a1420 100%
+  );
+}
+
+.typeEmoji {
+  font-size: 44px;
+}
+
+.typeTitle {
+  display: flex;
+  flex-direction: column;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #d6b4ff;
+  text-align: center;
+}
+
+.typeDesc {
+  width: 332px;
+  max-width: 100%;
+  margin-top: 22px;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--muted);
+  text-align: center;
+}
+
+.shareBtn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--text);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 800;
+  transition: opacity 0.15s ease;
+}
+
+.shareBtn:hover {
+  opacity: 0.9;
+}
+
+/* ===== 우측: 리포트 본문 ===== */
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.sectionTitle {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #dde0e6;
+}
+
+/* --- 투자 결과 요약 --- */
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px 26px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(160deg, #1b1e29 13.3%, #12141c 80%);
+}
+
+.summaryTop {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.summaryLabel {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.summaryRate {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--up);
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--surface3);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.summaryDivider {
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+
+.summaryGrid {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.gridLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted2);
+}
+
+.gridValue {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* --- 심리 트리거 민감도 --- */
+.triggerCard {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.triggerItem {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.triggerItem:first-child {
+  padding-top: 0;
+}
+
+.triggerItem:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.triggerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.triggerLabel {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #dde0e6;
+}
+
+.triggerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.iconAlert {
+  background: rgba(255, 201, 60, 0.15);
+}
+
+.iconUp {
+  background: rgba(255, 71, 87, 0.15);
+}
+
+.iconViolet {
+  background: rgba(180, 92, 255, 0.15);
+}
+
+.triggerScore {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.barTrack {
+  width: 100%;
+  height: 6px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface3);
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 6px;
+}
+
+.barAlert {
+  background: var(--alert);
+}
+
+.barUp {
+  background: var(--up);
+}
+
+.barViolet {
+  background: var(--violet);
+}
+
+.triggerDesc {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--muted2);
+}
+
+/* --- 투자 행동 분석 --- */
+.behaviorGrid {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.donutCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 230px;
+  flex-shrink: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.donutWrap {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.donutRing {
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+}
+
+.donutHole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--surface);
+  transform: translate(-50%, -50%);
+}
+
+.donutCount {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.donutLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted2);
+}
+
+.donutLegend {
+  display: flex;
+  gap: 18px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dotUp {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--up);
+  flex-shrink: 0;
+}
+
+.dotDown {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--down);
+  flex-shrink: 0;
+}
+
+.legendText {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.legendLabel {
+  color: var(--muted);
+}
+
+.legendValue {
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.behaviorSide {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.insightCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.insightIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 19px;
+}
+
+.insightValue {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.insightDesc {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* --- 종목별 성과 --- */
+.stockCompare {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+}
+
+.perfCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 0 0;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.perfTag {
+  align-self: flex-start;
+  margin-bottom: 6px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.perfTagUp {
+  composes: up;
+  background: rgba(255, 71, 87, 0.12);
+}
+
+.perfTagDown {
+  composes: down;
+  background: rgba(76, 141, 255, 0.12);
+}
+
+.perfName {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.perfRate {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* --- 종합 피드백 --- */
+.feedbackCard {
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--muted);
+}

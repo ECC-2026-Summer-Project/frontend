@@ -4,10 +4,13 @@ import Header from '../../components/layout/Header/Header';
 import Input from '../../components/common/Input/Input';
 import Button from '../../components/common/Button/Button';
 import { useAuth } from '../../hooks/useAuth';
-import { changePassword } from '../../api/auth';
+import { changePassword, deleteAccount } from '../../api/auth';
 import styles from './SettingPage.module.css';
+import Modal from '../../components/common/Modal/Modal';
+import { clearWatchlist } from '../../utils/watchlistStorage';
+import { clearOnboardingSeen } from '../../utils/onboardingStorage';
 
-const SIDE_NAV_ITEMS = ['계정', '데이터 · 초기화'];
+const SIDE_NAV_ITEMS = ['계정'];
 
 function formatDate(iso) {
   const d = new Date(iso);
@@ -34,9 +37,14 @@ function SettingPage() {
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [currentPasswordError, setCurrentPasswordError] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
-
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawPassword, setWithdrawPassword] = useState('');
+  const [withdrawError, setWithdrawError] = useState('');
+  const [withdrawing, setWithdrawing] = useState(false);
 
   const openLogoutModal = () => {
     setShowLogoutModal(true);
@@ -57,17 +65,20 @@ function SettingPage() {
     setNewPassword('');
     setNewPasswordConfirm('');
     setPasswordError('');
+    setCurrentPasswordError('');
     setShowPasswordModal(true);
   };
 
   const closePasswordModal = () => {
     setShowPasswordModal(false);
     setPasswordError('');
+    setCurrentPasswordError('');
   };
 
   const submitPasswordChange = async (e) => {
     e.preventDefault();
     setPasswordError('');
+    setCurrentPasswordError('');
 
     if (newPassword !== newPasswordConfirm) {
       setPasswordError('새 비밀번호가 일치하지 않습니다.');
@@ -88,9 +99,42 @@ function SettingPage() {
       setPasswordChangedAt(changedAt);
       setShowPasswordModal(false);
     } catch (err) {
-      setPasswordError(err.message);
+      // 여기까지 왔다는 건 신규 비밀번호 검증은 통과했다는 뜻이므로,
+      // 서버 실패는 곧 현재 비밀번호가 틀렸다는 의미 -> 해당 입력창에 표시
+      setCurrentPasswordError(err.message);
     } finally {
       setChangingPassword(false);
+    }
+  };
+
+  const openWithdrawModal = () => {
+    setWithdrawPassword('');
+    setWithdrawError('');
+    setShowWithdrawModal(true);
+  };
+
+  const closeWithdrawModal = () => {
+    setShowWithdrawModal(false);
+    setWithdrawError('');
+  };
+
+  const submitWithdraw = async (e) => {
+    e.preventDefault();
+    setWithdrawError('');
+    setWithdrawing(true);
+    try {
+      await deleteAccount(user?.accessToken, withdrawPassword);
+
+      clearWatchlist(user?.userId);
+      clearOnboardingSeen(user?.userId);
+
+      setShowWithdrawModal(false);
+      logout();
+      navigate('/login');
+    } catch (err) {
+      setWithdrawError(err.message);
+    } finally {
+      setWithdrawing(false);
     }
   };
 
@@ -155,11 +199,10 @@ function SettingPage() {
                 <span className={styles.chevron}>›</span>
               </button>
 
-              {/* 회원탈퇴 모달 만들어야함. 지금은 로그아웃으로 연결되어 있음.  */}
               <button
                 type="button"
                 className={styles.row}
-                onClick={openLogoutModal}
+                onClick={openWithdrawModal}
               >
                 <div className={styles.rowLeft}>
                   <p className={`${styles.rowTitle} ${styles.danger}`}>
@@ -176,99 +219,116 @@ function SettingPage() {
         </main>
       </div>
 
-      {showLogoutModal && (
-        <div className={styles.modalOverlay} onClick={closeLogoutModal}>
-          <div className={styles.modalCard}>
-            <div className={styles.modalHead}>
-              <p>로그아웃하시겠습니까?</p>
-            </div>
-
-            <div>
-              <div className={styles.modalActions}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={closeLogoutModal}
-                >
-                  취소
-                </Button>
-                <Button variant="primary" onClick={Logout}>
-                  로그아웃
-                </Button>
-              </div>
-            </div>
-          </div>
+      <Modal
+        open={showLogoutModal}
+        onClose={closeLogoutModal}
+        title="로그아웃 하시겠습니까?"
+      >
+        <div className={styles.modalActions}>
+          <Button variant="outline" onClick={closeLogoutModal}>
+            취소
+          </Button>
+          <Button variant="dangerSolid" onClick={Logout}>
+            로그아웃
+          </Button>
         </div>
-      )}
+      </Modal>
 
-      {showPasswordModal && (
-        <div className={styles.modalOverlay} onClick={closePasswordModal}>
-          <div
-            className={styles.modalCard}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.modalHead}>
-              <p>비밀번호 변경</p>
-              <button
-                type="button"
-                onClick={closePasswordModal}
-                aria-label="닫기"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={submitPasswordChange}>
-              <Input
-                label="현재 비밀번호"
-                type="password"
-                placeholder="현재 비밀번호를 입력하세요"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                autoComplete="current-password"
-                autoFocus
-              />
-              <Input
-                label="새 비밀번호"
-                type="password"
-                placeholder="새 비밀번호를 입력하세요 (8자 이상)"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                autoComplete="new-password"
-              />
-              <Input
-                label="새 비밀번호 확인"
-                type="password"
-                placeholder="새 비밀번호를 한 번 더 입력하세요"
-                value={newPasswordConfirm}
-                onChange={(e) => setNewPasswordConfirm(e.target.value)}
-                autoComplete="new-password"
-                error={passwordError}
-              />
-
-              <div className={styles.modalActions}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={closePasswordModal}
-                >
-                  취소
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  loading={changingPassword}
-                  disabled={
-                    !currentPassword || !newPassword || !newPasswordConfirm
-                  }
-                >
-                  변경하기
-                </Button>
-              </div>
-            </form>
+      <Modal
+        open={showPasswordModal}
+        onClose={closePasswordModal}
+        title="비밀번호 변경"
+      >
+        <form onSubmit={submitPasswordChange}>
+          <Input
+            label="현재 비밀번호"
+            type="password"
+            placeholder="현재 비밀번호를 입력하세요"
+            value={currentPassword}
+            onChange={(e) => {
+              setCurrentPassword(e.target.value);
+              if (currentPasswordError) setCurrentPasswordError('');
+            }}
+            autoComplete="current-password"
+            autoFocus
+            error={currentPasswordError}
+          />
+          <Input
+            label="새 비밀번호"
+            type="password"
+            placeholder="새 비밀번호를 입력하세요 (8자 이상)"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+          />
+          <Input
+            label="새 비밀번호 확인"
+            type="password"
+            placeholder="새 비밀번호를 한 번 더 입력하세요"
+            value={newPasswordConfirm}
+            onChange={(e) => setNewPasswordConfirm(e.target.value)}
+            autoComplete="new-password"
+            error={passwordError}
+          />
+          <div className={styles.modalActions}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closePasswordModal}
+            >
+              취소
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={changingPassword}
+              disabled={!currentPassword || !newPassword || !newPasswordConfirm}
+            >
+              변경하기
+            </Button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
+
+      <Modal
+        open={showWithdrawModal}
+        onClose={closeWithdrawModal}
+        title="정말 탈퇴하시겠어요?"
+      >
+        <form onSubmit={submitWithdraw}>
+          <p className={styles.rowDesc} style={{ marginBottom: 12 }}>
+            탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다. 계속하려면
+            비밀번호를 입력하세요.
+          </p>
+          <Input
+            label="비밀번호"
+            type="password"
+            placeholder="비밀번호를 입력하세요"
+            value={withdrawPassword}
+            onChange={(e) => setWithdrawPassword(e.target.value)}
+            autoComplete="current-password"
+            autoFocus
+            error={withdrawError}
+          />
+          <div className={styles.modalActions}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeWithdrawModal}
+            >
+              취소
+            </Button>
+            <Button
+              type="submit"
+              variant="danger"
+              loading={withdrawing}
+              disabled={!withdrawPassword}
+            >
+              탈퇴하기
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

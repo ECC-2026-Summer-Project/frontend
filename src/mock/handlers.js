@@ -61,6 +61,108 @@ const mockStocks = [
 let orderIdSeq = 501;
 const mockOrders = [];
 
+/**
+ * 문자열을 시드로 하는 결정적 난수 생성기를 돌려줍니다.
+ * 호출할 때마다 0~1 사이의 값을 반환하며, 같은 시드면 항상 같은 순서로 값을 뱉습니다.
+ * (주식창 상세 탭들의 실시간 데이터 API가 아직 없어 stockId 기반 더미 데이터에 사용)
+ */
+function createSeededRandom(seedStr) {
+  let seed = 0;
+  for (const ch of seedStr) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  return () => {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    return (seed % 1000) / 1000;
+  };
+}
+
+// stockId -> 기업정보 탭 전용 추가 정보 (mockStocks에는 없는 필드)
+const companyInfoExtra = {
+  '005930': {
+    description:
+      '삼성전자는 반도체, 스마트폰, 가전 등을 생산하는 국내 최대 전자기업으로, 메모리 반도체와 모바일 사업을 중심으로 글로벌 시장을 선도하고 있습니다.',
+    ceo: '한종희',
+    listedAt: '1975-06-11',
+    fiscalMonthEnd: '12월',
+  },
+  '000660': {
+    description:
+      'SK하이닉스는 D램과 낸드플래시 등 메모리 반도체를 전문으로 생산하는 기업으로, AI 서버향 고대역폭 메모리(HBM) 시장에서 두각을 나타내고 있습니다.',
+    ceo: '곽노정',
+    listedAt: '1996-12-26',
+    fiscalMonthEnd: '12월',
+  },
+  '035420': {
+    description:
+      'NAVER는 검색, 커머스, 콘텐츠, 핀테크 등 다양한 인터넷 서비스를 제공하는 국내 대표 IT 플랫폼 기업입니다.',
+    ceo: '최수연',
+    listedAt: '2008-11-28',
+    fiscalMonthEnd: '12월',
+  },
+};
+
+/** companyInfoExtra에 없는 종목(신규 추가 종목 등)을 위한 폴백 정보 */
+function getCompanyInfoExtra(stockId) {
+  return (
+    companyInfoExtra[stockId] || {
+      description: '기업 개요 정보가 아직 등록되지 않았습니다.',
+      ceo: '-',
+      listedAt: '-',
+      fiscalMonthEnd: '12월',
+    }
+  );
+}
+
+// user_id -> 레포트 (아직 레포트가 없는 사용자는 키가 없음 -> 404 REPORT_NOT_GENERATED)
+const mockReports = {
+  invest_lover: {
+    reportId: 1,
+    createdAt: '2026-08-09T16:30:00',
+
+    investmentStyle: {
+      type: '군중심리형',
+      score: 88,
+      description:
+        '추천 종목에 적극적으로 반응하고 비교적 빠르게 투자 판단을 내리는 성향을 보였습니다.',
+    },
+
+    investmentSummary: {
+      totalReturnRate: 18.4,
+      totalPurchaseAmount: 3000000,
+      totalEvaluationAmount: 3552000,
+      totalProfitLoss: 552000,
+      totalTradeCount: 12,
+    },
+
+    triggerSensitivity: {
+      aiRecommendationScore: 42,
+      surgingStockScore: 65,
+      newsInformationScore: 88,
+    },
+
+    behaviorAnalysis: {
+      buyCount: 7,
+      sellCount: 5,
+      viewedNewsCount: 4,
+      aiRecommendedPurchaseCount: 3,
+    },
+
+    bestPerformingStock: {
+      stockId: '086520',
+      stockName: '에코프로',
+      returnRate: 24.1,
+    },
+
+    worstPerformingStock: {
+      stockId: '000660',
+      stockName: '테슬라',
+      returnRate: -9.3,
+    },
+
+    feedback:
+      '추천 종목에 비교적 민감하게 반응하는 성향을 보였습니다. 투자 전에 뉴스나 기업 정보를 한 번 더 확인하는 습관을 들여보세요.',
+  },
+};
+
 // 탈퇴 등으로 무효화된 토큰 목록 (재사용 방지)
 const invalidatedTokens = new Set();
 
@@ -154,6 +256,107 @@ export const handlers = [
           expiresIn: 3600,
           user_id: foundUser.user_id,
         },
+        error: null,
+      },
+      { status: 200 },
+    );
+  }),
+
+  //회원탈퇴-------------------------------------------------------------------
+  http.delete('/api/users/me', async ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    const foundUser = existingUsers.find(
+      (user) => user.user_id === tokenInfo?.user_id,
+    );
+
+    if (!tokenInfo || !foundUser) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const body = await request.json();
+    const { password } = body;
+
+    if (foundUser.password !== password) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'INVALID_PASSWORD',
+            message: '비밀번호가 일치하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    // soft delete: row는 유지하고 deletedAt만 채워 세션/거래/리포트 연관 데이터 보존
+    foundUser.deletedAt = new Date().toISOString();
+
+    // 탈퇴 즉시 현재 accessToken 무효화 (재사용 방지)
+    invalidatedTokens.add(tokenInfo.token);
+
+    return HttpResponse.json(
+      { success: true, data: { deleted: true }, error: null },
+      { status: 200 },
+    );
+  }),
+
+  //비밀번호 변경-------------------------------------------------------------------
+  http.patch('/api/users/me/password', async ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    const foundUser = existingUsers.find(
+      (user) => user.user_id === tokenInfo?.user_id,
+    );
+
+    if (!tokenInfo || !foundUser) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const body = await request.json();
+    const { currentPassword, newPassword } = body;
+
+    if (foundUser.password !== currentPassword) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'INVALID_PASSWORD',
+            message: '현재 비밀번호가 일치하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    foundUser.password = newPassword;
+    foundUser.passwordChangedAt = new Date().toISOString();
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: { passwordChangedAt: foundUser.passwordChangedAt },
         error: null,
       },
       { status: 200 },
@@ -454,24 +657,12 @@ export const handlers = [
   }),
   //=======================================주식창-기업별 주식창===========================================
   //요약----------------------------------------------------------------------
-  http.get('/api/stocks/:stockId/summary', ({ request, params }) => {}),
+  // (별도 API 없이 /api/stocks 목록 + 아래 차트/호가 데이터를 축약해 클라이언트에서 구성)
+
   //차트----------------------------------------------------------------------
-  http.get('/api/stocks/:stockId/chart', ({ request, params }) => {}),
-  //호가----------------------------------------------------------------------
-  http.get('/api/stocks/:stockId/orderbook', ({ request, params }) => {}),
-  //체결----------------------------------------------------------------------
-  //배당----------------------------------------------------------------------
-  //기업정보-------------------------------------------------------------------
-
-  //=======================================설정===========================================================
-  //비밀번호 변경-------------------------------------------------------------------
-  http.patch('/api/users/me/password', async ({ request }) => {
+  http.get('/api/stocks/:stockId/chart', ({ request, params }) => {
     const tokenInfo = getUserIdFromToken(request);
-    const foundUser = existingUsers.find(
-      (user) => user.user_id === tokenInfo?.user_id,
-    );
-
-    if (!tokenInfo || !foundUser) {
+    if (!tokenInfo) {
       return HttpResponse.json(
         {
           success: false,
@@ -485,38 +676,289 @@ export const handlers = [
       );
     }
 
-    const body = await request.json();
-    const { currentPassword, newPassword } = body;
-
-    if (foundUser.password !== currentPassword) {
+    const { stockId } = params;
+    const stock = mockStocks.find((s) => s.stockId === stockId);
+    if (!stock) {
       return HttpResponse.json(
         {
           success: false,
           data: null,
           error: {
-            code: 'INVALID_PASSWORD',
-            message: '현재 비밀번호가 일치하지 않습니다.',
+            code: 'STOCK_NOT_FOUND',
+            message: '존재하지 않는 종목입니다.',
+          },
+        },
+        { status: 404 },
+      );
+    }
+
+    const url = new URL(request.url);
+    const interval = url.searchParams.get('interval') || '1일';
+    const range = url.searchParams.get('range') || '1일';
+
+    const rand = createSeededRandom(`${stockId}-chart-${interval}-${range}`);
+    const trend = stock.changeRate >= 0 ? 1 : -1;
+    const candleCount = 30;
+    let price = stock.currentPrice * (1 - trend * 0.05);
+    const candles = [];
+    for (let i = 0; i < candleCount; i += 1) {
+      const open = price;
+      const drift = trend * stock.currentPrice * 0.002 * rand();
+      const noise = (rand() - 0.5) * stock.currentPrice * 0.01;
+      const close = Math.max(1, open + drift + noise);
+      const high = Math.max(open, close) + rand() * stock.currentPrice * 0.004;
+      const low = Math.max(
+        1,
+        Math.min(open, close) - rand() * stock.currentPrice * 0.004,
+      );
+      candles.push({
+        time: i,
+        open: Math.round(open),
+        high: Math.round(high),
+        low: Math.round(low),
+        close: Math.round(close),
+      });
+      price = close;
+    }
+
+    return HttpResponse.json(
+      { success: true, data: { interval, range, candles } },
+      { status: 200 },
+    );
+  }),
+
+  //호가----------------------------------------------------------------------
+  http.get('/api/stocks/:stockId/orderbook', ({ request, params }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
           },
         },
         { status: 401 },
       );
     }
 
-    foundUser.password = newPassword;
-    foundUser.passwordChangedAt = new Date().toISOString();
+    const { stockId } = params;
+    const stock = mockStocks.find((s) => s.stockId === stockId);
+    if (!stock) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'STOCK_NOT_FOUND',
+            message: '존재하지 않는 종목입니다.',
+          },
+        },
+        { status: 404 },
+      );
+    }
+
+    const tick =
+      stock.currentPrice >= 100000
+        ? 1000
+        : stock.currentPrice >= 10000
+          ? 100
+          : 10;
+    const rand = createSeededRandom(`${stockId}-orderbook`);
+    const nextQuantity = () => Math.round(rand() * 900) + 100;
+
+    // 호가창 위쪽일수록(=현재가에서 멀수록) 먼저 나열
+    const asks = [5, 4, 3, 2, 1].map((step) => ({
+      price: stock.currentPrice + tick * step,
+      quantity: nextQuantity(),
+    }));
+    const bids = [1, 2, 3, 4, 5].map((step) => ({
+      price: stock.currentPrice - tick * step,
+      quantity: nextQuantity(),
+    }));
 
     return HttpResponse.json(
       {
         success: true,
-        message: '비밀번호가 변경되었습니다.',
-        data: { passwordChangedAt: foundUser.passwordChangedAt },
+        data: { currentPrice: stock.currentPrice, asks, bids },
       },
       { status: 200 },
     );
   }),
-  //로그아웃-------------------------------------------------------------------
-  //회원탈퇴-------------------------------------------------------------------
-  http.delete('/api/users/me', async ({ request }) => {
+
+  //체결----------------------------------------------------------------------
+  http.get('/api/stocks/:stockId/trades', ({ request, params }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const { stockId } = params;
+    const stock = mockStocks.find((s) => s.stockId === stockId);
+    if (!stock) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'STOCK_NOT_FOUND',
+            message: '존재하지 않는 종목입니다.',
+          },
+        },
+        { status: 404 },
+      );
+    }
+
+    const tick =
+      stock.currentPrice >= 100000
+        ? 1000
+        : stock.currentPrice >= 10000
+          ? 100
+          : 10;
+    const rand = createSeededRandom(`${stockId}-trades`);
+
+    let price = stock.currentPrice;
+    let time = new Date();
+    const trades = Array.from({ length: 20 }, () => {
+      price += Math.round((rand() - 0.5) * 2) * tick;
+      price = Math.max(tick, price);
+      time = new Date(time.getTime() - (Math.round(rand() * 40) + 5) * 1000);
+      return {
+        time: time.toTimeString().slice(0, 8),
+        price,
+        quantity: Math.round(rand() * 20) + 1,
+        side: rand() > 0.5 ? 'BUY' : 'SELL',
+      };
+    });
+
+    return HttpResponse.json(
+      { success: true, data: { trades } },
+      { status: 200 },
+    );
+  }),
+
+  //배당----------------------------------------------------------------------
+  http.get('/api/stocks/:stockId/dividends', ({ request, params }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const { stockId } = params;
+    const stock = mockStocks.find((s) => s.stockId === stockId);
+    if (!stock) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'STOCK_NOT_FOUND',
+            message: '존재하지 않는 종목입니다.',
+          },
+        },
+        { status: 404 },
+      );
+    }
+
+    const rand = createSeededRandom(`${stockId}-dividends`);
+    const dividendPerShare = Math.round((rand() * 1500 + 200) / 50) * 50;
+    const dividendYield = Number(
+      (((dividendPerShare * 4) / stock.currentPrice) * 100).toFixed(1),
+    );
+    const payoutRatio = Number((rand() * 30 + 5).toFixed(1));
+
+    const history = [0, 1, 2, 3].map((i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i * 3);
+      return {
+        paidAt: date.toISOString().slice(0, 10),
+        dividendPerShare,
+        yield: dividendYield,
+      };
+    });
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: { dividendYield, dividendPerShare, payoutRatio, history },
+      },
+      { status: 200 },
+    );
+  }),
+
+  //기업정보-------------------------------------------------------------------
+  http.get('/api/stocks/:stockId/company-info', ({ request, params }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const { stockId } = params;
+    const stock = mockStocks.find((s) => s.stockId === stockId);
+    if (!stock) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'STOCK_NOT_FOUND',
+            message: '존재하지 않는 종목입니다.',
+          },
+        },
+        { status: 404 },
+      );
+    }
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          stockId: stock.stockId,
+          name: stock.name,
+          sector: stock.sector,
+          market: stock.market,
+          ...getCompanyInfoExtra(stockId),
+        },
+      },
+      { status: 200 },
+    );
+  }),
+
+  //==================================레포트================================================
+  //레포트 조회-------------------------------------------------------------------
+  http.get('/api/reports/:reportId', ({ request, params }) => {
     const tokenInfo = getUserIdFromToken(request);
     const foundUser = existingUsers.find(
       (user) => user.user_id === tokenInfo?.user_id,
@@ -536,43 +978,25 @@ export const handlers = [
       );
     }
 
-    const body = await request.json();
-    const { password } = body;
+    const { reportId } = params;
+    const report = mockReports[tokenInfo.user_id];
 
-    if (foundUser.password !== password) {
+    if (!report || String(report.reportId) !== String(reportId)) {
       return HttpResponse.json(
         {
           success: false,
-          data: null,
           error: {
-            code: 'INVALID_PASSWORD',
-            message: '비밀번호가 일치하지 않습니다.',
+            code: 'REPORT_NOT_GENERATED',
+            message: '생성된 레포트가 없습니다.',
           },
         },
-        { status: 401 },
+        { status: 404 },
       );
     }
 
-    // soft delete: row는 유지하고 deletedAt만 채워 세션/거래/리포트 연관 데이터 보존
-    foundUser.deletedAt = new Date().toISOString();
-
-    // 탈퇴 즉시 현재 accessToken 무효화 (재사용 방지)
-    invalidatedTokens.add(tokenInfo.token);
-
     return HttpResponse.json(
-      { success: true, data: { deleted: true }, error: null },
+      { success: true, data: report },
       { status: 200 },
     );
   }),
-  //=======================================홈화면===========================================================
-  //계좌 화면-------------------------------------------------------------------------
-  //보유종목--------------------------------------------------------------------------
-  //레포트 생성------------------------------------------------------------------------
-  //레포트 출력------------------------------------------------------------------------
-  //급등주 추천------------------------------------------------------------------------
-  //AI 추천---------------------------------------------------------------------------
-  //뉴스 목록--------------------------------------------------------------------------
-  //뉴스 상세 조회---------------------------------------------------------------------
-  //뉴스 열람 기록---------------------------------------------------------------------
-  //Access 토크 재발급---------------------------------------------------------------------
 ];

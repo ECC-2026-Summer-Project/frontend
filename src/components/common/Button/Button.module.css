@@ -57,3 +57,13 @@
 .danger:hover:not(:disabled) {
   background: rgba(255, 71, 87, 0.1);
 }
+
+/* dangerSolid: 로그아웃 등 즉시 실행되는 위험한 액션 (채워진 빨강) */
+.dangerSolid {
+  background: var(--danger);
+  color: #fff;
+}
+
+.dangerSolid:hover:not(:disabled) {
+  opacity: 0.9;
+}

@@ -12,6 +12,9 @@
   position: absolute;
   top: 31px;
   right: 32px;
+  border: none;
+  background: none;
+  padding: 0;
   font-size: 12px;
   font-weight: 800;
   color: var(--muted2);

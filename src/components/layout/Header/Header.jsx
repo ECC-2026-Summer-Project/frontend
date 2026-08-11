@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
 import { useAuth } from '../../../hooks/useAuth';
+import logo from '../../../assets/investme_logo.png';
 
 const MENU_ITEMS = [
   { label: '홈', path: '/home' },
@@ -20,8 +21,8 @@ function Header() {
   return (
     <header className={styles.topnav}>
       <Link to="/" className={styles.logo}>
-        <span className={styles.mark} />
-        심리투자
+        <img src={logo} alt="인베스트미 로고" className={styles.mark} />
+        인베스트미
       </Link>
 
       <nav className={styles.menu}>

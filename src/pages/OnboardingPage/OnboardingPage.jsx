@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { markOnboardingSeen } from '../../utils/onboardingStorage';
 import styles from './OnboardingPage.module.css';
 
 const TOTAL_STEPS = 3;
@@ -20,22 +22,28 @@ const NEXT_BUTTON_LABEL = {
 
 function OnboardingPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
+
+  const finishOnboarding = () => {
+    markOnboardingSeen(user?.userId);
+    navigate('/home');
+  };
 
   const goPrev = () => setStep((s) => Math.max(1, s - 1));
   const goNext = () => {
     if (step < TOTAL_STEPS) {
       setStep((s) => s + 1);
     } else {
-      navigate('/home');
+      finishOnboarding();
     }
   };
 
   return (
     <div className={styles.page}>
-      <Link to="/home" className={styles.skip}>
+      <button type="button" className={styles.skip} onClick={finishOnboarding}>
         건너뛰기
-      </Link>
+      </button>
 
       <div className={styles.centerCol}>
         {step === 1 && (
