@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
   const login = async (userId, password) => {
     const data = await authApi.login(userId, password);
     const nextAuth = {
-      userId: data.user_id,
+      userId: data.userId,
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
     };

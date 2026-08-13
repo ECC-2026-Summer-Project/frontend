@@ -11,7 +11,6 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 
 import { AuthProvider, useAuth } from './hooks/useAuth';
 
-/** 로그인 여부에 따라 "/" 접속 시 이동할 위치를 결정합니다. */
 function RootRedirect() {
   const { isAuthenticated } = useAuth();
   return <Navigate to={isAuthenticated ? '/home' : '/login'} replace />;
