@@ -225,11 +225,12 @@ export const handlers = [
   }),
 
   // 로그인-------------------------------------------------------------------
+  // 실제 백엔드 스펙 기준: 요청/응답 모두 camelCase(userId), 에러는 문자열.
   http.post('/api/users/login', async ({ request }) => {
     const body = await request.json();
-    const { user_id, password } = body;
+    const { userId, password } = body;
 
-    const foundUser = existingUsers.find((user) => user.user_id === user_id);
+    const foundUser = existingUsers.find((user) => user.user_id === userId);
 
     // 아이디가 없거나, 있어도 비밀번호가 다르면 → 둘 다 같은 에러로 처리 (보안 원칙)
     // 탈퇴(soft delete)된 계정도 동일한 에러로 처리해 탈퇴 여부가 노출되지 않게 함
@@ -238,10 +239,7 @@ export const handlers = [
         {
           success: false,
           data: null,
-          error: {
-            code: 'INVALID_CREDENTIALS',
-            message: '아이디 또는 비밀번호가 일치하지 않습니다.',
-          },
+          error: '아이디 또는 비밀번호가 올바르지 않습니다.',
         },
         { status: 401 },
       );
@@ -251,10 +249,9 @@ export const handlers = [
       {
         success: true,
         data: {
+          userId: foundUser.user_id,
           accessToken: `fake-access-jwt-token-${foundUser.user_id}`,
           refreshToken: `fake-refresh-jwt-token-${foundUser.user_id}`,
-          expiresIn: 3600,
-          user_id: foundUser.user_id,
         },
         error: null,
       },
