@@ -1,6 +1,6 @@
 import { authHeader, apiFetch } from './client';
 
-/** GET /api/stocks -> Stock[]
+/** GET /api/stocks -> { data: Stock[], total, page, pageSize }
  * params: { keyword, sector, sort: 'price'|'changeRate'|'volume', order: 'asc'|'desc', page, size }
  */
 export async function getStocks(token, params = {}) {
