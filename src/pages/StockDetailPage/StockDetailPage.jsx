@@ -56,9 +56,9 @@ function StockDetailPage() {
     setLoading(true);
     // 단일 종목 조회 API가 없어 목록에서 stockId로 찾습니다.
     getStocks(token, {})
-      .then((body) => {
+      .then((stocks) => {
         if (cancelled) return;
-        const found = body.data.find((s) => s.stockId === stockId);
+        const found = stocks.find((s) => s.stockId === stockId);
         setError(found ? '' : '존재하지 않는 종목이에요.');
         setStock(found || null);
       })

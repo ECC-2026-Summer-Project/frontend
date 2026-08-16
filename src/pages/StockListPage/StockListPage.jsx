@@ -74,8 +74,8 @@ function StockListPage() {
         params.order = 'desc';
       }
       getStocks(token, params)
-        .then((body) => {
-          if (!cancelled) setStocks(body.data);
+        .then((stocks) => {
+          if (!cancelled) setStocks(stocks);
         })
         .catch((err) => {
           if (!cancelled) setError(err.message);
