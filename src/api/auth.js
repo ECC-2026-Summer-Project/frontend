@@ -9,17 +9,14 @@ export async function login(userId, password) {
   });
 }
 
-// TODO: signup 자체 스펙은 아직 미확인. login 스펙 기준으로는 camelCase(userId)가
-// 확인됐고 checkUserId()도 이미 camelCase를 쓰고 있어 컨벤션이 섞여 있으니,
-// signup 스펙 확인되는 대로 { user_id } -> { userId }로 맞출 것.
-/** POST /api/users/signup -> { user_id } */
+/** POST /api/users/signup -> { userId } */
 export async function signup(userId, password) {
   return apiFetch(
     '/api/users/signup',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, password }),
+      body: JSON.stringify({ userId, password }),
     },
     '회원가입에 실패했습니다.',
   );

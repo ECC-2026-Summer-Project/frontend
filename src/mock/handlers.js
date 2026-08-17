@@ -178,8 +178,8 @@ export const handlers = [
   //회원가입-------------------------------------------------------------------
   http.post('/api/users/signup', async ({ request }) => {
     const body = await request.json();
-    const { user_id, password } = body;
-    if (existingUsers.some((user) => user.user_id === user_id)) {
+    const { userId, password } = body;
+    if (existingUsers.some((user) => user.user_id === userId)) {
       return HttpResponse.json(
         {
           success: false,
@@ -193,14 +193,14 @@ export const handlers = [
       );
     }
     existingUsers.push({
-      user_id,
+      user_id: userId,
       password,
       balance: 10000000,
       holdings: [],
       watchlist: [],
     }); // 객체로 저장
     return HttpResponse.json(
-      { success: true, data: { user_id }, error: null },
+      { success: true, data: { userId }, error: null },
       { status: 201 },
     );
   }),
