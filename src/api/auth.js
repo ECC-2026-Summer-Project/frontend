@@ -22,10 +22,10 @@ export async function signup(userId, password) {
   );
 }
 
-/** PATCH /api/users/me/password -> { passwordChangedAt } */
-export async function changePassword(token, currentPassword, newPassword) {
+/** PATCH /api/users/password?userId=xxx -> { passwordChangedAt } */
+export async function changePassword(token, userId, currentPassword, newPassword) {
   return apiFetch(
-    '/api/users/me/password',
+    `/api/users/password?userId=${encodeURIComponent(userId)}`,
     {
       method: 'PATCH',
       headers: {
@@ -38,6 +38,21 @@ export async function changePassword(token, currentPassword, newPassword) {
   );
 }
 
+/** POST /api/users/logout?userId=xxx -> { loggedOut: true } */
+export async function logout(token, userId) {
+  return apiFetch(
+    `/api/users/logout?userId=${encodeURIComponent(userId)}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeader(token),
+      },
+    },
+    '로그아웃에 실패했습니다.',
+  );
+}
+
 /** GET /api/users/check-id?userId=xxx -> { available: boolean } */
 export async function checkUserId(userId) {
   return apiFetch(
@@ -47,10 +62,10 @@ export async function checkUserId(userId) {
   );
 }
 
-/** DELETE /api/users/me -> { deleted: true } */
-export async function deleteAccount(token, password) {
+/** DELETE /api/users/me?userId=xxx -> { deleted: true } */
+export async function deleteAccount(token, userId, password) {
   return apiFetch(
-    '/api/users/me',
+    `/api/users/me?userId=${encodeURIComponent(userId)}`,
     {
       method: 'DELETE',
       headers: {

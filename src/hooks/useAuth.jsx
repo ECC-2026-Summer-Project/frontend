@@ -14,10 +14,6 @@ function loadStoredAuth() {
   }
 }
 
-/**
- * 앱 최상단(App.jsx)에서 <AuthProvider>로 감싸서 사용합니다.
- * 상태는 useState + localStorage로만 관리합니다 (별도 상태관리 라이브러리 없음).
- */
 export function AuthProvider({ children }) {
   const [auth, setAuth] = useState(loadStoredAuth);
 
@@ -33,9 +29,17 @@ export function AuthProvider({ children }) {
     return nextAuth;
   };
 
-  const logout = () => {
-    setAuth(null);
-    localStorage.removeItem(STORAGE_KEY);
+  const logout = async () => {
+    try {
+      if (auth?.accessToken) {
+        await authApi.logout(auth.accessToken, auth.userId);
+      }
+    } catch {
+      // 서버 측 토큰 무효화가 실패해도 클라이언트 로그아웃은 계속 진행
+    } finally {
+      setAuth(null);
+      localStorage.removeItem(STORAGE_KEY);
+    }
   };
 
   const value = {
