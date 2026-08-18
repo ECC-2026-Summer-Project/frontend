@@ -4,11 +4,11 @@ import Header from '../../components/layout/Header/Header';
 import { useAuth } from '../../hooks/useAuth';
 import {
   getStocks,
+  getWatchlist,
   createOrder,
   addWatchlist,
   removeWatchlist,
 } from '../../api/stocks';
-import { loadWatchlist, saveWatchlist } from '../../utils/watchlistStorage';
 import SummaryTab from './tabs/SummaryTab';
 import OrderBookTab from './tabs/OrderBookTab';
 import ChartTab from './tabs/ChartTab';
@@ -38,7 +38,7 @@ function StockDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('요약');
-  const [watchlist, setWatchlist] = useState(() => loadWatchlist(user?.userId));
+  const [watchlist, setWatchlist] = useState(new Set());
 
   const [orderSide, setOrderSide] = useState(null); // null | 'BUY' | 'SELL'
   const [quantity, setQuantity] = useState(1);
@@ -74,6 +74,21 @@ function StockDetailPage() {
   }, [token, stockId]);
 
   useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    getWatchlist(token)
+      .then((items) => {
+        if (!cancelled) setWatchlist(new Set(items.map((item) => item.stockId)));
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  useEffect(() => {
     if (!toast) return undefined;
     const timer = setTimeout(() => setToast(null), 3200);
     return () => clearTimeout(timer);
@@ -89,7 +104,6 @@ function StockDetailPage() {
       const next = new Set(watchlist);
       isWatched ? next.delete(stock.stockId) : next.add(stock.stockId);
       setWatchlist(next);
-      saveWatchlist(user?.userId, next);
     } catch (err) {
       setOrderError(err.message);
     }
@@ -197,7 +211,9 @@ function StockDetailPage() {
             ))}
           </div>
 
-          {activeTab === '요약' && <SummaryTab stock={stock} />}
+          {activeTab === '요약' && (
+            <SummaryTab stockId={stock.stockId} token={token} />
+          )}
           {activeTab === '호가' && (
             <OrderBookTab stockId={stock.stockId} token={token} />
           )}

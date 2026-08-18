@@ -22,6 +22,21 @@ export async function signup(userId, password) {
   );
 }
 
+/** POST /api/users/refresh -> { accessToken }
+ * Access Token이 만료됐을 때 Refresh Token으로 새 Access Token을 발급받습니다.
+ */
+export async function refreshAccessToken(refreshToken) {
+  return apiFetch(
+    '/api/users/refresh',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    },
+    'Access Token 갱신에 실패했습니다.',
+  );
+}
+
 /** PATCH /api/users/password?userId=xxx -> { passwordChangedAt } */
 export async function changePassword(token, userId, currentPassword, newPassword) {
   return apiFetch(

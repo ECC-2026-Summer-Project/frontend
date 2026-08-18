@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout/AuthLayout';
 import Input from '../../components/common/Input/Input';
 import Button from '../../components/common/Button/Button';
 import { useAuth } from '../../hooks/useAuth';
 import { hasSeenOnboarding } from '../../utils/onboardingStorage';
+import { consumeSessionExpired } from '../../utils/authStorage';
 import styles from './LoginPage.module.css';
 
 function LoginPage() {
@@ -15,6 +16,13 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // 세션(Access/Refresh Token 모두) 만료로 강제 로그아웃되어 넘어온 경우 안내 문구를 보여줍니다.
+  useEffect(() => {
+    if (consumeSessionExpired()) {
+      setError('세션이 만료되었습니다. 다시 로그인해주세요.');
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
