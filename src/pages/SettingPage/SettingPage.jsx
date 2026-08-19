@@ -40,6 +40,9 @@ function SettingPage() {
   const [currentPasswordError, setCurrentPasswordError] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showLoggedOutModal, setShowLoggedOutModal] = useState(false);
+  const [showPasswordChangedModal, setShowPasswordChangedModal] =
+    useState(false);
 
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawPassword, setWithdrawPassword] = useState('');
@@ -56,8 +59,17 @@ function SettingPage() {
 
   const Logout = () => {
     setShowLogoutModal(false);
-    logout();
+    setShowLoggedOutModal(true);
+  };
+
+  const confirmLoggedOut = async () => {
+    setShowLoggedOutModal(false);
+    await logout();
     navigate('/login');
+  };
+
+  const confirmChangePassword = () => {
+    setShowPasswordChangedModal(false);
   };
 
   const openPasswordModal = () => {
@@ -91,16 +103,17 @@ function SettingPage() {
 
     setChangingPassword(true);
     try {
-      const { passwordChangedAt: changedAt } = await changePassword(
+      await changePassword(
         user?.accessToken,
+        user?.userId,
         currentPassword,
         newPassword,
       );
-      setPasswordChangedAt(changedAt);
+
+      setPasswordChangedAt(new Date().toISOString());
       setShowPasswordModal(false);
+      setShowPasswordChangedModal(true);
     } catch (err) {
-      // 여기까지 왔다는 건 신규 비밀번호 검증은 통과했다는 뜻이므로,
-      // 서버 실패는 곧 현재 비밀번호가 틀렸다는 의미 -> 해당 입력창에 표시
       setCurrentPasswordError(err.message);
     } finally {
       setChangingPassword(false);
@@ -123,13 +136,13 @@ function SettingPage() {
     setWithdrawError('');
     setWithdrawing(true);
     try {
-      await deleteAccount(user?.accessToken, withdrawPassword);
+      await deleteAccount(user?.accessToken, user?.userId, withdrawPassword);
 
       clearWatchlist(user?.userId);
       clearOnboardingSeen(user?.userId);
 
       setShowWithdrawModal(false);
-      logout();
+      await logout();
       navigate('/login');
     } catch (err) {
       setWithdrawError(err.message);
@@ -235,6 +248,19 @@ function SettingPage() {
       </Modal>
 
       <Modal
+        open={showLoggedOutModal}
+        onClose={confirmLoggedOut}
+        title="로그아웃되었습니다"
+        showCloseButton={false}
+      >
+        <div className={styles.modalActions}>
+          <Button variant="primary" onClick={confirmLoggedOut}>
+            확인
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal
         open={showPasswordModal}
         onClose={closePasswordModal}
         title="비밀번호 변경"
@@ -288,6 +314,19 @@ function SettingPage() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        open={showPasswordChangedModal}
+        onClose={confirmChangePassword}
+        title="비밀번호가 변경되었습니다."
+        showCloseButton={false}
+      >
+        <div className={styles.modalActions}>
+          <Button variant="primary" onClick={confirmChangePassword}>
+            확인
+          </Button>
+        </div>
       </Modal>
 
       <Modal

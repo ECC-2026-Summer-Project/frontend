@@ -14,6 +14,15 @@ export async function getStocks(token, params = {}) {
   );
 }
 
+/** GET /api/stocks/surging -> { eventId, stockId, stockName, currentPrice, priceChange, changeRate }[] */
+export async function getSurgingStocks(token) {
+  return apiFetch(
+    '/api/stocks/surging',
+    { headers: authHeader(token) },
+    '급등 종목 목록을 불러오지 못했습니다.',
+  );
+}
+
 /** POST /api/orders -> Order
  * order: { stockId, side: 'BUY'|'SELL', orderType: 'MARKET'|'LIMIT', quantity, price }
  */
@@ -26,6 +35,15 @@ export async function createOrder(token, order) {
       body: JSON.stringify(order),
     },
     '주문에 실패했습니다.',
+  );
+}
+
+/** GET /api/watchlist -> { stockId, name, addedAt }[] */
+export async function getWatchlist(token) {
+  return apiFetch(
+    '/api/watchlist',
+    { headers: authHeader(token) },
+    '관심 종목 목록을 불러오지 못했습니다.',
   );
 }
 
@@ -44,6 +62,15 @@ export async function removeWatchlist(token, stockId) {
     `/api/watchlist/${stockId}`,
     { method: 'DELETE', headers: authHeader(token) },
     '관심 종목 삭제에 실패했습니다.',
+  );
+}
+
+/** GET /api/stocks/:stockId/summary -> { stockId, name, market, currentPrice, changeRate, changeAmount, openPrice, highPrice, lowPrice, volume, isAiRecommended } */
+export async function getStockSummary(token, stockId) {
+  return apiFetch(
+    `/api/stocks/${stockId}/summary`,
+    { headers: authHeader(token) },
+    '종목 요약 정보를 불러오지 못했습니다.',
   );
 }
 
@@ -91,7 +118,7 @@ export async function getDividends(token, stockId) {
 /** GET /api/stocks/:stockId/company-info -> { description, ceo, listedAt, sector, market, ... } */
 export async function getCompanyInfo(token, stockId) {
   return apiFetch(
-    `/api/stocks/${stockId}/company-info`,
+    `/api/stocks/${stockId}/info`,
     { headers: authHeader(token) },
     '기업 정보를 불러오지 못했습니다.',
   );

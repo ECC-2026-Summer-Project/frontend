@@ -178,8 +178,8 @@ export const handlers = [
   //회원가입-------------------------------------------------------------------
   http.post('/api/users/signup', async ({ request }) => {
     const body = await request.json();
-    const { user_id, password } = body;
-    if (existingUsers.some((user) => user.user_id === user_id)) {
+    const { userId, password } = body;
+    if (existingUsers.some((user) => user.user_id === userId)) {
       return HttpResponse.json(
         {
           success: false,
@@ -193,14 +193,14 @@ export const handlers = [
       );
     }
     existingUsers.push({
-      user_id,
+      user_id: userId,
       password,
       balance: 10000000,
       holdings: [],
       watchlist: [],
     }); // 객체로 저장
     return HttpResponse.json(
-      { success: true, data: { user_id }, error: null },
+      { success: true, data: { userId }, error: null },
       { status: 201 },
     );
   }),
@@ -259,6 +259,33 @@ export const handlers = [
     );
   }),
 
+  //로그아웃-------------------------------------------------------------------
+  http.post('/api/users/logout', async ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    // 재사용 방지: accessToken 무효화 (refreshToken도 실제로는 서버 DB에서 폐기해야 함)
+    invalidatedTokens.add(tokenInfo.token);
+
+    return HttpResponse.json(
+      { success: true, data: { loggedOut: true }, error: null },
+      { status: 200 },
+    );
+  }),
+
   //회원탈퇴-------------------------------------------------------------------
   http.delete('/api/users/me', async ({ request }) => {
     const tokenInfo = getUserIdFromToken(request);
@@ -310,7 +337,8 @@ export const handlers = [
   }),
 
   //비밀번호 변경-------------------------------------------------------------------
-  http.patch('/api/users/me/password', async ({ request }) => {
+  // 실제 백엔드 경로: PATCH /api/users/password (주의: /me 가 붙지 않음)
+  http.patch('/api/users/password', async ({ request }) => {
     const tokenInfo = getUserIdFromToken(request);
     const foundUser = existingUsers.find(
       (user) => user.user_id === tokenInfo?.user_id,
