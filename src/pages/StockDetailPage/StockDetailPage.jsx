@@ -39,6 +39,7 @@ function StockDetailPage() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('요약');
   const [watchlist, setWatchlist] = useState(new Set());
+  const [watchlistError, setWatchlistError] = useState('');
 
   const [orderSide, setOrderSide] = useState(null); // null | 'BUY' | 'SELL'
   const [quantity, setQuantity] = useState(1);
@@ -94,10 +95,17 @@ function StockDetailPage() {
     return () => clearTimeout(timer);
   }, [toast]);
 
+  useEffect(() => {
+    if (!watchlistError) return undefined;
+    const timer = setTimeout(() => setWatchlistError(''), 3200);
+    return () => clearTimeout(timer);
+  }, [watchlistError]);
+
   const isWatched = stock ? watchlist.has(stock.stockId) : false;
 
   const toggleWatch = async () => {
     if (!token || !stock) return;
+    setWatchlistError('');
     try {
       if (isWatched) await removeWatchlist(token, stock.stockId);
       else await addWatchlist(token, stock.stockId);
@@ -105,7 +113,9 @@ function StockDetailPage() {
       isWatched ? next.delete(stock.stockId) : next.add(stock.stockId);
       setWatchlist(next);
     } catch (err) {
-      setOrderError(err.message);
+      // 별표 버튼을 눌렀을 때 실패해도 눈에 보이는 곳이 없어 조용히 묻히던 문제 수정
+      // (기존엔 매수/매도 모달 안에서만 보이는 orderError에 넣고 있었음)
+      setWatchlistError(err.message);
     }
   };
 
@@ -188,14 +198,19 @@ function StockDetailPage() {
                 {formatRate(stock.changeRate)})
               </p>
             </div>
-            <button
-              type="button"
-              className={styles.starBtn}
-              onClick={toggleWatch}
-              aria-label={isWatched ? '관심 종목에서 제거' : '관심 종목에 추가'}
-            >
-              {isWatched ? '★' : '☆'}
-            </button>
+            <div className={styles.starWrap}>
+              <button
+                type="button"
+                className={styles.starBtn}
+                onClick={toggleWatch}
+                aria-label={isWatched ? '관심 종목에서 제거' : '관심 종목에 추가'}
+              >
+                {isWatched ? '★' : '☆'}
+              </button>
+              {watchlistError && (
+                <p className={styles.watchlistError}>{watchlistError}</p>
+              )}
+            </div>
           </div>
 
           <div className={styles.tabs}>
