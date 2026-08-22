@@ -84,7 +84,7 @@ export async function getOrderBook(token, stockId) {
 }
 
 /** GET /api/stocks/:stockId/chart -> { interval, range, candles }
- * params: { interval: '1분'|'5분'|'1일', range: '1일'|'1주'|'1개월' }
+ * params: { interval: '1m'|'5m'|'1d', range: '1d'|'1w'|'1m' } (백엔드가 요구하는 코드값, 화면 라벨이 아님)
  */
 export async function getChartPrices(token, stockId, params = {}) {
   const query = new URLSearchParams(

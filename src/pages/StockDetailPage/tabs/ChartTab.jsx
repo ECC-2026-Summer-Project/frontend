@@ -6,6 +6,10 @@ import tabStyles from './tabs.module.css';
 const INTERVALS = ['1분', '5분', '1일'];
 const RANGES = ['1일', '1주', '1개월'];
 
+// 화면 라벨(한글) -> 백엔드가 요구하는 interval/range 코드값
+const INTERVAL_CODES = { '1분': '1m', '5분': '5m', '1일': '1d' };
+const RANGE_CODES = { '1일': '1d', '1주': '1w', '1개월': '1m' };
+
 /** 캔들의 종가만 이어서 SVG 라인 차트 좌표를 만듭니다. (캔들스틱 렌더링은 다음 패스) */
 function candlesToPoints(candles) {
   const closes = candles.map((c) => c.close);
@@ -33,7 +37,10 @@ function ChartTab({ stockId, token, isUp }) {
     let cancelled = false;
     setLoading(true);
     setError('');
-    getChartPrices(token, stockId, { interval: chartInterval, range })
+    getChartPrices(token, stockId, {
+      interval: INTERVAL_CODES[chartInterval],
+      range: RANGE_CODES[range],
+    })
       .then((d) => {
         if (!cancelled) setData(d);
       })
