@@ -14,8 +14,9 @@ function TradesTab({ stockId, token }) {
     setLoading(true);
     setError('');
     getTrades(token, stockId)
+      // 백엔드는 { trades: [...] }가 아니라 체결 내역 배열을 data로 그대로 내려줍니다.
       .then((d) => {
-        if (!cancelled) setTrades(d.trades);
+        if (!cancelled) setTrades(d);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);
@@ -30,6 +31,9 @@ function TradesTab({ stockId, token }) {
 
   if (loading) return <p className={styles.stateText}>불러오는 중...</p>;
   if (error) return <p className={styles.stateText}>{error}</p>;
+  if (!trades || trades.length === 0) {
+    return <p className={styles.stateText}>체결 내역이 없어요.</p>;
+  }
 
   return (
     <div className={tabStyles.card}>

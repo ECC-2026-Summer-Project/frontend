@@ -29,7 +29,7 @@ function candlesToPoints(candles) {
 function ChartTab({ stockId, token, isUp }) {
   const [chartInterval, setChartInterval] = useState('1일');
   const [range, setRange] = useState('1일');
-  const [data, setData] = useState(null);
+  const [candles, setCandles] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -41,8 +41,9 @@ function ChartTab({ stockId, token, isUp }) {
       interval: INTERVAL_CODES[chartInterval],
       range: RANGE_CODES[range],
     })
+      // 백엔드는 { candles: [...] }가 아니라 캔들 배열을 data로 그대로 내려줍니다.
       .then((d) => {
-        if (!cancelled) setData(d);
+        if (!cancelled) setCandles(d);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);
@@ -86,7 +87,10 @@ function ChartTab({ stockId, token, isUp }) {
 
       {loading && <p className={styles.stateText}>불러오는 중...</p>}
       {!loading && error && <p className={styles.stateText}>{error}</p>}
-      {!loading && !error && (
+      {!loading && !error && (!candles || candles.length === 0) && (
+        <p className={styles.stateText}>차트 데이터가 없어요.</p>
+      )}
+      {!loading && !error && candles?.length > 0 && (
         <div className={styles.chartBox}>
           <svg
             className={styles.chartSvg}
@@ -94,7 +98,7 @@ function ChartTab({ stockId, token, isUp }) {
             preserveAspectRatio="none"
           >
             <polyline
-              points={candlesToPoints(data.candles)}
+              points={candlesToPoints(candles)}
               fill="none"
               stroke={isUp ? 'var(--up)' : 'var(--down)'}
               strokeWidth="3"
