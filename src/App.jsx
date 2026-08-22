@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage/HomePage';
 import ReportPage from './pages/ReportPage/ReportPage';
 import StockListPage from './pages/StockListPage/StockListPage';
 import StockDetailPage from './pages/StockDetailPage/StockDetailPage';
+import NewsDetailPage from './pages/NewsDetailPage/NewsDetailPage';
 import SettingPage from './pages/SettingPage/SettingPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
@@ -31,6 +32,7 @@ function App() {
             <Route path="/report" element={<ReportPage />} />
             <Route path="/stocks" element={<StockListPage />} />
             <Route path="/stocks/:stockId" element={<StockDetailPage />} />
+            <Route path="/news/:newsId" element={<NewsDetailPage />} />
             <Route path="/settings" element={<SettingPage />} />
           </Route>
         </Routes>

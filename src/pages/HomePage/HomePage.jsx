@@ -277,7 +277,9 @@ function HomePage() {
               )}
               {news.map((item) => (
                 <li key={item.newsId} className={styles.newsItem}>
-                  <p className={styles.newsText}>{item.title}</p>
+                  <Link to={`/news/${item.newsId}`} className={styles.newsLink}>
+                    <p className={styles.newsText}>{item.title}</p>
+                  </Link>
                 </li>
               ))}
             </ul>
