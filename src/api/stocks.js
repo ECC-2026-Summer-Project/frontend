@@ -83,8 +83,9 @@ export async function getOrderBook(token, stockId) {
   );
 }
 
-/** GET /api/stocks/:stockId/chart -> { interval, range, candles }
- * params: { interval: '1분'|'5분'|'1일', range: '1일'|'1주'|'1개월' }
+/** GET /api/stocks/:stockId/chart -> { time, open, high, low, close, volume }[]
+ * (interval/range로 감싸지 않고 캔들 배열을 data로 바로 내려줍니다)
+ * params: { interval: '1m'|'5m'|'1d', range: '1d'|'1w'|'1m' } (백엔드가 요구하는 코드값, 화면 라벨이 아님)
  */
 export async function getChartPrices(token, stockId, params = {}) {
   const query = new URLSearchParams(
@@ -97,7 +98,9 @@ export async function getChartPrices(token, stockId, params = {}) {
   );
 }
 
-/** GET /api/stocks/:stockId/trades -> { trades } */
+/** GET /api/stocks/:stockId/trades -> { time, price, quantity, side }[]
+ * (trades로 감싸지 않고 체결 내역 배열을 data로 바로 내려줍니다)
+ */
 export async function getTrades(token, stockId) {
   return apiFetch(
     `/api/stocks/${stockId}/trades`,
@@ -106,7 +109,9 @@ export async function getTrades(token, stockId) {
   );
 }
 
-/** GET /api/stocks/:stockId/dividends -> { dividendYield, dividendPerShare, payoutRatio, history } */
+/** GET /api/stocks/:stockId/dividends -> { year, amountPerShare, yieldRate }[]
+ * (요약 객체가 아니라 연도별 배당 내역 배열을 data로 바로 내려줍니다)
+ */
 export async function getDividends(token, stockId) {
   return apiFetch(
     `/api/stocks/${stockId}/dividends`,
@@ -115,7 +120,7 @@ export async function getDividends(token, stockId) {
   );
 }
 
-/** GET /api/stocks/:stockId/company-info -> { description, ceo, listedAt, sector, market, ... } */
+/** GET /api/stocks/:stockId/info -> { stockId, name, description, industry, marketCap, per, dividendYield, listedDate, ceo, employees } */
 export async function getCompanyInfo(token, stockId) {
   return apiFetch(
     `/api/stocks/${stockId}/info`,

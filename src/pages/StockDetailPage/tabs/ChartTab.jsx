@@ -6,6 +6,10 @@ import tabStyles from './tabs.module.css';
 const INTERVALS = ['1분', '5분', '1일'];
 const RANGES = ['1일', '1주', '1개월'];
 
+// 화면 라벨(한글) -> 백엔드가 요구하는 interval/range 코드값
+const INTERVAL_CODES = { '1분': '1m', '5분': '5m', '1일': '1d' };
+const RANGE_CODES = { '1일': '1d', '1주': '1w', '1개월': '1m' };
+
 /** 캔들의 종가만 이어서 SVG 라인 차트 좌표를 만듭니다. (캔들스틱 렌더링은 다음 패스) */
 function candlesToPoints(candles) {
   const closes = candles.map((c) => c.close);
@@ -25,7 +29,7 @@ function candlesToPoints(candles) {
 function ChartTab({ stockId, token, isUp }) {
   const [chartInterval, setChartInterval] = useState('1일');
   const [range, setRange] = useState('1일');
-  const [data, setData] = useState(null);
+  const [candles, setCandles] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -33,9 +37,13 @@ function ChartTab({ stockId, token, isUp }) {
     let cancelled = false;
     setLoading(true);
     setError('');
-    getChartPrices(token, stockId, { interval: chartInterval, range })
+    getChartPrices(token, stockId, {
+      interval: INTERVAL_CODES[chartInterval],
+      range: RANGE_CODES[range],
+    })
+      // 백엔드는 { candles: [...] }가 아니라 캔들 배열을 data로 그대로 내려줍니다.
       .then((d) => {
-        if (!cancelled) setData(d);
+        if (!cancelled) setCandles(d);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);
@@ -79,7 +87,10 @@ function ChartTab({ stockId, token, isUp }) {
 
       {loading && <p className={styles.stateText}>불러오는 중...</p>}
       {!loading && error && <p className={styles.stateText}>{error}</p>}
-      {!loading && !error && (
+      {!loading && !error && (!candles || candles.length === 0) && (
+        <p className={styles.stateText}>차트 데이터가 없어요.</p>
+      )}
+      {!loading && !error && candles?.length > 0 && (
         <div className={styles.chartBox}>
           <svg
             className={styles.chartSvg}
@@ -87,7 +98,7 @@ function ChartTab({ stockId, token, isUp }) {
             preserveAspectRatio="none"
           >
             <polyline
-              points={candlesToPoints(data.candles)}
+              points={candlesToPoints(candles)}
               fill="none"
               stroke={isUp ? 'var(--up)' : 'var(--down)'}
               strokeWidth="3"
