@@ -1,82 +1,25 @@
-import Header from '../../components/layout/Header/Header';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Header from '../../components/layout/Header/Header';
+import { useAuth } from '../../hooks/useAuth';
+import { getAccountSummary, getPortfolioHoldings } from '../../api/home';
+import { getSurgingStocks } from '../../api/stocks';
+import { getAiRecommendations } from '../../api/recommendations';
+import { getNews } from '../../api/news';
+import { getReport } from '../../api/reports';
 import pulseIcon from '../../assets/pulse.svg';
 import styles from './HomePage.module.css';
 
-// TODO: 실제로는 거래 횟수 등 리포트 생성 조건 충족 여부를 서버에서 받아와야 함
-const REPORT_READY = true;
+// TODO: 실제로는 홈 화면 등에서 사용자의 최신 reportId를 전달받아야 함 (ReportPage.jsx와 동일한 임시값)
+const REPORT_ID = 1;
 
-const accountSummary = {
-  totalAsset: 1080000,
-  changeAmount: 80000,
-  changeRate: 8.0,
-};
-
-const holdings = [
-  {
-    ticker: '삼전',
-    name: '삼성전자',
-    shares: 12,
-    price: 78200,
-    changeRate: 3.4,
-  },
-  {
-    ticker: '2차전',
-    name: '2차전지 ETF',
-    shares: 5,
-    price: 14850,
-    changeRate: -1.1,
-  },
-  {
-    ticker: '카카오',
-    name: '카카오',
-    shares: 8,
-    price: 42300,
-    changeRate: 1.8,
-  },
-];
-
-const trendingStocks = [
-  {
-    name: '에코프로',
-    tag: '급등',
-    tagType: 'up',
-    price: 812000,
-    changeRate: 18.2,
-  },
-  {
-    name: '셀트리온',
-    tag: 'AI추천',
-    tagType: 'violet',
-    price: 189500,
-    changeRate: 6.4,
-  },
-  {
-    name: '한미반도체',
-    tag: '급등',
-    tagType: 'up',
-    price: 142300,
-    changeRate: 11.9,
-  },
-  { name: 'LG에너지솔루션', tag: null, price: 398000, changeRate: -2.1 },
-];
-
-const news = [
-  { category: '속보', text: '○○기업, 신규 계약 체결로 실적 개선 기대' },
-  { category: '시황', text: '코스피, 외국인 순매수에 상승 마감' },
-  { category: '특징주', text: '2차전지 관련주, 정책 기대감에 동반 강세' },
-];
-
-const aiPicks = [
-  { name: '셀트리온', changeRate: 6.4 },
-  { name: '삼성바이오로직스', changeRate: 2.9 },
-  { name: 'NAVER', changeRate: 4.1 },
-];
-
+// TODO: 매수 트리거 토스트도 실제로는 서버에서 받아와야 함
 const triggerToast = {
   title: '현재 91%의 투자자가 매수했어요',
   subtitle: '에코프로 · 지금 가장 뜨거운 종목',
 };
+
+const NEWS_REFRESH_MS = 90000;
 
 /** 등락률이 상승(빨강)인지 하락(파랑)인지에 맞는 클래스명을 반환합니다. */
 function changeClass(rate) {
@@ -88,13 +31,135 @@ function formatRate(rate) {
   return `${rate >= 0 ? '+' : ''}${rate}%`;
 }
 
-/** 태그 종류('up' | 'violet')에 맞는 뱃지 클래스명을 반환합니다. */
-function tagClass(tagType) {
-  return tagType === 'violet' ? styles.tagViolet : styles.tagUp;
+/** 종목명 앞 2글자로 뱃지 텍스트를 만듭니다. (예: 삼성전자 -> 삼성) */
+function tickerBadge(name) {
+  return name.slice(0, 2);
 }
 
 function HomePage() {
+  const { user } = useAuth();
+  const token = user?.accessToken;
   const navigate = useNavigate();
+
+  const [accountSummary, setAccountSummary] = useState(null);
+  const [accountError, setAccountError] = useState('');
+
+  const [holdings, setHoldings] = useState([]);
+  const [holdingsError, setHoldingsError] = useState('');
+
+  const [trendingStocks, setTrendingStocks] = useState([]);
+  const [trendingError, setTrendingError] = useState('');
+
+  const [news, setNews] = useState([]);
+  const [newsError, setNewsError] = useState('');
+
+  const [aiPicks, setAiPicks] = useState([]);
+  const [aiError, setAiError] = useState('');
+
+  // 레포트가 이미 생성돼 있으면 "레포트 출력" 버튼을, 없으면(404 REPORT_NOT_GENERATED) 매수 트리거 토스트를 보여줍니다.
+  const [reportReady, setReportReady] = useState(false);
+
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    getReport(token, REPORT_ID)
+      .then(() => {
+        if (!cancelled) setReportReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setReportReady(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    getAccountSummary(token)
+      .then((data) => {
+        if (!cancelled) setAccountSummary(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setAccountError(err.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    getPortfolioHoldings(token)
+      .then((data) => {
+        if (!cancelled) setHoldings(data.holdings || []);
+      })
+      .catch((err) => {
+        if (!cancelled) setHoldingsError(err.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    getSurgingStocks(token)
+      .then((items) => {
+        if (!cancelled) setTrendingStocks(items);
+      })
+      .catch((err) => {
+        if (!cancelled) setTrendingError(err.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    getAiRecommendations(token)
+      .then((items) => {
+        if (!cancelled) setAiPicks(items);
+      })
+      .catch((err) => {
+        if (!cancelled) setAiError(err.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  // 90초마다 재호출해 최신 뉴스로 갱신합니다. (직전에 노출된 뉴스는 excludeNewsIds로 제외)
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    let shownIds = [];
+
+    const fetchNews = () => {
+      getNews(token, shownIds)
+        .then((items) => {
+          if (cancelled) return;
+          setNews(items);
+          shownIds = items.map((item) => item.newsId);
+          setNewsError('');
+        })
+        .catch((err) => {
+          if (!cancelled) setNewsError(err.message);
+        });
+    };
+
+    fetchNews();
+    const interval = setInterval(fetchNews, NEWS_REFRESH_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [token]);
 
   return (
     <div className={styles.home}>
@@ -104,15 +169,23 @@ function HomePage() {
         <section className={styles.colLeft}>
           <div className={styles.accountCard}>
             <p className={styles.cardLabel}>총 평가자산</p>
-            <p className={styles.cardValue}>
-              {accountSummary.totalAsset.toLocaleString('ko-KR')}원
-            </p>
-            <p className={changeClass(accountSummary.changeRate)}>
-              {accountSummary.changeAmount >= 0 ? '▲' : '▼'}{' '}
-              {accountSummary.changeAmount >= 0 ? '+' : ''}
-              {accountSummary.changeAmount.toLocaleString('ko-KR')}원 (
-              {formatRate(accountSummary.changeRate)})
-            </p>
+            {accountError ? (
+              <p className={styles.cardValue}>{accountError}</p>
+            ) : !accountSummary ? (
+              <p className={styles.cardValue}>불러오는 중...</p>
+            ) : (
+              <>
+                <p className={styles.cardValue}>
+                  {accountSummary.totalAssetAmount.toLocaleString('ko-KR')}원
+                </p>
+                <p className={changeClass(accountSummary.totalReturnRate)}>
+                  {accountSummary.totalProfitLoss >= 0 ? '▲' : '▼'}{' '}
+                  {accountSummary.totalProfitLoss >= 0 ? '+' : ''}
+                  {accountSummary.totalProfitLoss.toLocaleString('ko-KR')}원 (
+                  {formatRate(accountSummary.totalReturnRate)})
+                </p>
+              </>
+            )}
           </div>
 
           <div className={styles.sectionHead}>
@@ -123,20 +196,28 @@ function HomePage() {
           </div>
 
           <ul className={styles.holdingsList}>
+            {holdingsError && (
+              <li className={styles.holdingRow}>{holdingsError}</li>
+            )}
+            {!holdingsError && holdings.length === 0 && (
+              <li className={styles.holdingRow}>보유한 종목이 없어요.</li>
+            )}
             {holdings.map((holding) => (
-              <li key={holding.name} className={styles.holdingRow}>
+              <li key={holding.stockId} className={styles.holdingRow}>
                 <div className={styles.holdingLeft}>
-                  <div className={styles.tickerBadge}>{holding.ticker}</div>
+                  <div className={styles.tickerBadge}>
+                    {tickerBadge(holding.stockName)}
+                  </div>
                   <div className={styles.hInfo}>
-                    <p className={styles.holdingName}>{holding.name}</p>
+                    <p className={styles.holdingName}>{holding.stockName}</p>
                     <p className={styles.holdingShares}>
-                      {holding.shares}주 보유
+                      {holding.quantity}주 보유
                     </p>
                   </div>
                 </div>
                 <div className={styles.holdingRight}>
                   <p className={styles.holdingPrice}>
-                    {holding.price.toLocaleString('ko-KR')}
+                    {holding.currentPrice.toLocaleString('ko-KR')}
                   </p>
                   <p className={changeClass(holding.changeRate)}>
                     {formatRate(holding.changeRate)}
@@ -162,20 +243,22 @@ function HomePage() {
                 <span>현재가</span>
                 <span>등락률</span>
               </div>
+              {trendingError && (
+                <p className={styles.stockName}>{trendingError}</p>
+              )}
+              {!trendingError && trendingStocks.length === 0 && (
+                <p className={styles.stockName}>급등 종목이 없어요.</p>
+              )}
               {trendingStocks.map((stock) => (
-                <div key={stock.name} className={styles.tableRow}>
+                <div key={stock.stockId} className={styles.tableRow}>
                   <div className={styles.stockNameWrap}>
-                    <p className={styles.stockName}>{stock.name}</p>
-                    {stock.tag && (
-                      <span
-                        className={`${styles.tag} ${tagClass(stock.tagType)}`}
-                      >
-                        {stock.tag}
-                      </span>
-                    )}
+                    <p className={styles.stockName}>{stock.stockName}</p>
+                    <span className={`${styles.tag} ${styles.tagUp}`}>
+                      급등
+                    </span>
                   </div>
                   <p className={styles.stockPrice}>
-                    {stock.price.toLocaleString('ko-KR')}
+                    {stock.currentPrice.toLocaleString('ko-KR')}
                   </p>
                   <p className={changeClass(stock.changeRate)}>
                     {formatRate(stock.changeRate)}
@@ -188,10 +271,15 @@ function HomePage() {
           <div className={styles.newsSection}>
             <p className={styles.sectionTitle}>📰 실시간 뉴스</p>
             <ul className={styles.newsList}>
+              {newsError && <li className={styles.newsItem}>{newsError}</li>}
+              {!newsError && news.length === 0 && (
+                <li className={styles.newsItem}>표시할 뉴스가 없어요.</li>
+              )}
               {news.map((item) => (
-                <li key={item.text} className={styles.newsItem}>
-                  <p className={styles.newsCategory}>{item.category}</p>
-                  <p className={styles.newsText}>{item.text}</p>
+                <li key={item.newsId} className={styles.newsItem}>
+                  <Link to={`/news/${item.newsId}`} className={styles.newsLink}>
+                    <p className={styles.newsText}>{item.title}</p>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -200,10 +288,14 @@ function HomePage() {
 
         <section className={styles.colRight}>
           <p className={styles.sectionTitle}>🤖 AI 추천</p>
+          {aiError && <p className={styles.pickName}>{aiError}</p>}
+          {!aiError && aiPicks.length === 0 && (
+            <p className={styles.pickName}>추천 종목이 없어요.</p>
+          )}
           {aiPicks.map((pick) => (
-            <div key={pick.name} className={styles.pickCard}>
+            <div key={pick.stockId} className={styles.pickCard}>
               <div className={styles.pickHead}>
-                <p className={styles.pickName}>{pick.name}</p>
+                <p className={styles.pickName}>{pick.stockName}</p>
                 <span className={`${styles.tag} ${styles.tagViolet}`}>
                   AI추천
                 </span>
@@ -216,7 +308,7 @@ function HomePage() {
         </section>
       </div>
 
-      {REPORT_READY ? (
+      {reportReady ? (
         <button
           type="button"
           className={styles.reportToast}

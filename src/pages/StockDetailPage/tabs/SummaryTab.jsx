@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { getStockSummary } from '../../../api/stocks';
 import styles from '../StockDetailPage.module.css';
 
 /**
@@ -80,7 +82,33 @@ function investorFlows(stock) {
 }
 
 /** 주식창 "요약" 탭: 미니 추세 차트 + 미니 호가 + 투자자별 매매동향 */
-function SummaryTab({ stock }) {
+function SummaryTab({ stockId, token }) {
+  const [stock, setStock] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+    getStockSummary(token, stockId)
+      .then((d) => {
+        if (!cancelled) setStock(d);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, stockId]);
+
+  if (loading) return <p className={styles.stateText}>불러오는 중...</p>;
+  if (error) return <p className={styles.stateText}>{error}</p>;
+
   const isUp = stock.changeRate >= 0;
 
   return (

@@ -2,8 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/layout/Header/Header';
 import { useAuth } from '../../hooks/useAuth';
-import { getStocks, addWatchlist, removeWatchlist } from '../../api/stocks';
-import { loadWatchlist, saveWatchlist } from '../../utils/watchlistStorage';
+import {
+  getStocks,
+  getSurgingStocks,
+  getWatchlist,
+  addWatchlist,
+  removeWatchlist,
+} from '../../api/stocks';
 import styles from './StockListPage.module.css';
 
 const FILTERS = [
@@ -21,6 +26,21 @@ function tickerBadge(name) {
 /** 등락률이 +10% 이상이면 급등 태그를 붙입니다. (급등 판정 전용 API가 없어 클라이언트에서 계산) */
 function getTag(stock) {
   return stock.changeRate >= 10 ? '급등' : null;
+}
+
+/**
+ * 급등 종목 API(SurgingStockResponse) 응답을 종목 목록 행 형태로 맞춥니다.
+ * 이 API에는 거래량 필드가 없어 volume은 비워둡니다.
+ */
+function normalizeSurgingStock(item) {
+  return {
+    stockId: item.stockId,
+    name: item.stockName,
+    currentPrice: item.currentPrice,
+    changeRate: item.changeRate,
+    changeAmount: item.priceChange,
+    volume: undefined,
+  };
 }
 
 /**
@@ -55,7 +75,22 @@ function StockListPage() {
   const [error, setError] = useState('');
   const [keyword, setKeyword] = useState('');
   const [filter, setFilter] = useState('all');
-  const [watchlist, setWatchlist] = useState(() => loadWatchlist(user?.userId));
+  const [watchlist, setWatchlist] = useState(new Set());
+
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    getWatchlist(token)
+      .then((items) => {
+        if (!cancelled) setWatchlist(new Set(items.map((item) => item.stockId)));
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -68,12 +103,23 @@ function StockListPage() {
     const timer = setTimeout(() => {
       setLoading(true);
       setError('');
-      const params = { keyword: keyword || undefined };
-      if (filter === 'hot') {
-        params.sort = 'changeRate';
-        params.order = 'desc';
-      }
-      getStocks(token, params)
+
+      // 급등순 필터는 키워드 파라미터가 없는 전용 API라 결과를 클라이언트에서 검색어로 한 번 더 거릅니다.
+      const request =
+        filter === 'hot'
+          ? getSurgingStocks(token).then((items) =>
+              items
+                .map(normalizeSurgingStock)
+                .filter(
+                  (s) =>
+                    !keyword ||
+                    s.name.includes(keyword) ||
+                    s.stockId.includes(keyword),
+                ),
+            )
+          : getStocks(token, { keyword: keyword || undefined });
+
+      request
         .then((stocks) => {
           if (!cancelled) setStocks(stocks);
         })
@@ -117,7 +163,6 @@ function StockListPage() {
       const next = new Set(watchlist);
       isWatched ? next.delete(stockId) : next.add(stockId);
       setWatchlist(next);
-      saveWatchlist(user?.userId, next);
     } catch (err) {
       setError(err.message);
     }
@@ -228,7 +273,9 @@ function StockListPage() {
                   {formatRate(stock.changeRate)}
                 </p>
                 <p className={styles.colVolume}>
-                  {stock.volume.toLocaleString('ko-KR')}
+                  {stock.volume != null
+                    ? stock.volume.toLocaleString('ko-KR')
+                    : '-'}
                 </p>
 
                 <div className={styles.colTag}>

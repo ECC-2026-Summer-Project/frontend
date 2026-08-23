@@ -76,27 +76,31 @@ function createSeededRandom(seedStr) {
 }
 
 // stockId -> 기업정보 탭 전용 추가 정보 (mockStocks에는 없는 필드)
+// 필드명은 실제 백엔드 StockInfoResponse(industry, listedDate, per, employees ...)에 맞춥니다.
 const companyInfoExtra = {
   '005930': {
     description:
       '삼성전자는 반도체, 스마트폰, 가전 등을 생산하는 국내 최대 전자기업으로, 메모리 반도체와 모바일 사업을 중심으로 글로벌 시장을 선도하고 있습니다.',
     ceo: '한종희',
-    listedAt: '1975-06-11',
-    fiscalMonthEnd: '12월',
+    listedDate: '1975-06-11',
+    per: 15.2,
+    employees: 120000,
   },
   '000660': {
     description:
       'SK하이닉스는 D램과 낸드플래시 등 메모리 반도체를 전문으로 생산하는 기업으로, AI 서버향 고대역폭 메모리(HBM) 시장에서 두각을 나타내고 있습니다.',
     ceo: '곽노정',
-    listedAt: '1996-12-26',
-    fiscalMonthEnd: '12월',
+    listedDate: '1996-12-26',
+    per: 22.4,
+    employees: 32000,
   },
   '035420': {
     description:
       'NAVER는 검색, 커머스, 콘텐츠, 핀테크 등 다양한 인터넷 서비스를 제공하는 국내 대표 IT 플랫폼 기업입니다.',
     ceo: '최수연',
-    listedAt: '2008-11-28',
-    fiscalMonthEnd: '12월',
+    listedDate: '2008-11-28',
+    per: 28.7,
+    employees: 4700,
   },
 };
 
@@ -106,8 +110,9 @@ function getCompanyInfoExtra(stockId) {
     companyInfoExtra[stockId] || {
       description: '기업 개요 정보가 아직 등록되지 않았습니다.',
       ceo: '-',
-      listedAt: '-',
-      fiscalMonthEnd: '12월',
+      listedDate: null,
+      per: null,
+      employees: null,
     }
   );
 }
@@ -178,8 +183,8 @@ export const handlers = [
   //회원가입-------------------------------------------------------------------
   http.post('/api/users/signup', async ({ request }) => {
     const body = await request.json();
-    const { user_id, password } = body;
-    if (existingUsers.some((user) => user.user_id === user_id)) {
+    const { userId, password } = body;
+    if (existingUsers.some((user) => user.user_id === userId)) {
       return HttpResponse.json(
         {
           success: false,
@@ -193,14 +198,14 @@ export const handlers = [
       );
     }
     existingUsers.push({
-      user_id,
+      user_id: userId,
       password,
       balance: 10000000,
       holdings: [],
       watchlist: [],
     }); // 객체로 저장
     return HttpResponse.json(
-      { success: true, data: { user_id }, error: null },
+      { success: true, data: { userId }, error: null },
       { status: 201 },
     );
   }),
@@ -259,6 +264,33 @@ export const handlers = [
     );
   }),
 
+  //로그아웃-------------------------------------------------------------------
+  http.post('/api/users/logout', async ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    // 재사용 방지: accessToken 무효화 (refreshToken도 실제로는 서버 DB에서 폐기해야 함)
+    invalidatedTokens.add(tokenInfo.token);
+
+    return HttpResponse.json(
+      { success: true, data: { loggedOut: true }, error: null },
+      { status: 200 },
+    );
+  }),
+
   //회원탈퇴-------------------------------------------------------------------
   http.delete('/api/users/me', async ({ request }) => {
     const tokenInfo = getUserIdFromToken(request);
@@ -310,7 +342,8 @@ export const handlers = [
   }),
 
   //비밀번호 변경-------------------------------------------------------------------
-  http.patch('/api/users/me/password', async ({ request }) => {
+  // 실제 백엔드 경로: PATCH /api/users/password (주의: /me 가 붙지 않음)
+  http.patch('/api/users/password', async ({ request }) => {
     const tokenInfo = getUserIdFromToken(request);
     const foundUser = existingUsers.find(
       (user) => user.user_id === tokenInfo?.user_id,
@@ -714,12 +747,15 @@ export const handlers = [
         high: Math.round(high),
         low: Math.round(low),
         close: Math.round(close),
+        volume: Math.round(stock.volume * (0.02 + rand() * 0.03)),
       });
       price = close;
     }
 
+    // 실제 백엔드(StockController)는 { interval, range }로 감싸지 않고
+    // 캔들 배열을 data로 그대로 내려줍니다. mock도 동일한 형태로 맞춥니다.
     return HttpResponse.json(
-      { success: true, data: { interval, range, candles } },
+      { success: true, data: candles },
       { status: 200 },
     );
   }),
@@ -840,10 +876,9 @@ export const handlers = [
       };
     });
 
-    return HttpResponse.json(
-      { success: true, data: { trades } },
-      { status: 200 },
-    );
+    // 실제 백엔드(StockController)는 { trades }로 감싸지 않고
+    // 체결 내역 배열을 data로 그대로 내려줍니다. mock도 동일한 형태로 맞춥니다.
+    return HttpResponse.json({ success: true, data: trades }, { status: 200 });
   }),
 
   //배당----------------------------------------------------------------------
@@ -880,33 +915,24 @@ export const handlers = [
     }
 
     const rand = createSeededRandom(`${stockId}-dividends`);
-    const dividendPerShare = Math.round((rand() * 1500 + 200) / 50) * 50;
-    const dividendYield = Number(
-      (((dividendPerShare * 4) / stock.currentPrice) * 100).toFixed(1),
-    );
-    const payoutRatio = Number((rand() * 30 + 5).toFixed(1));
+    const currentYear = new Date().getFullYear();
 
+    // 실제 백엔드(StockController)는 요약 객체가 아니라
+    // 연도별 배당 내역 배열({ year, amountPerShare, yieldRate }[])을 data로 그대로 내려줍니다.
     const history = [0, 1, 2, 3].map((i) => {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i * 3);
-      return {
-        paidAt: date.toISOString().slice(0, 10),
-        dividendPerShare,
-        yield: dividendYield,
-      };
+      const amountPerShare = Math.round((rand() * 1500 + 200) / 50) * 50;
+      const yieldRate = Number(
+        (((amountPerShare * 4) / stock.currentPrice) * 100).toFixed(1),
+      );
+      return { year: currentYear - i, amountPerShare, yieldRate };
     });
 
-    return HttpResponse.json(
-      {
-        success: true,
-        data: { dividendYield, dividendPerShare, payoutRatio, history },
-      },
-      { status: 200 },
-    );
+    return HttpResponse.json({ success: true, data: history }, { status: 200 });
   }),
 
   //기업정보-------------------------------------------------------------------
-  http.get('/api/stocks/:stockId/company-info', ({ request, params }) => {
+  // 실제 백엔드(StockController)는 GET /api/stocks/:stockId/info 로 노출합니다.
+  http.get('/api/stocks/:stockId/info', ({ request, params }) => {
     const tokenInfo = getUserIdFromToken(request);
     if (!tokenInfo) {
       return HttpResponse.json(
@@ -944,8 +970,9 @@ export const handlers = [
         data: {
           stockId: stock.stockId,
           name: stock.name,
-          sector: stock.sector,
-          market: stock.market,
+          industry: stock.sector,
+          marketCap: stock.marketCap,
+          dividendYield: 0,
           ...getCompanyInfoExtra(stockId),
         },
       },

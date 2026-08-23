@@ -3,12 +3,12 @@ import { getCompanyInfo } from '../../../api/stocks';
 import styles from '../StockDetailPage.module.css';
 import tabStyles from './tabs.module.css';
 
-/** 날짜 문자열(YYYY-MM-DD)을 "YYYY.MM.DD"로 표시합니다. ('-'는 그대로 둠) */
+/** 날짜 문자열(YYYY-MM-DD)을 "YYYY.MM.DD"로 표시합니다. 값이 없으면 '-'. */
 function formatDate(dateStr) {
-  return dateStr === '-' ? dateStr : dateStr.replaceAll('-', '.');
+  return !dateStr || dateStr === '-' ? '-' : dateStr.replaceAll('-', '.');
 }
 
-/** 주식창 "기업정보" 탭: 기업 개요 + 대표자/상장일/업종/시장구분 등 기본 정보 */
+/** 주식창 "기업정보" 탭: 기업 개요 + 대표자/상장일/업종/PER/종업원수 등 기본 정보 */
 function CompanyInfoTab({ stockId, token }) {
   const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,11 +38,16 @@ function CompanyInfoTab({ stockId, token }) {
 
   const fields = [
     ['대표자', info.ceo],
-    ['상장일', formatDate(info.listedAt)],
-    ['업종', info.sector],
-    ['시장구분', info.market],
+    ['상장일', formatDate(info.listedDate)],
+    ['업종', info.industry],
     ['종목코드', info.stockId],
-    ['결산월', info.fiscalMonthEnd],
+    ['PER', info.per !== null && info.per !== undefined ? `${info.per}배` : '-'],
+    [
+      '종업원수',
+      info.employees !== null && info.employees !== undefined
+        ? `${info.employees.toLocaleString('ko-KR')}명`
+        : '-',
+    ],
   ];
 
   return (

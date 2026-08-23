@@ -9,26 +9,38 @@ export async function login(userId, password) {
   });
 }
 
-// TODO: signup 자체 스펙은 아직 미확인. login 스펙 기준으로는 camelCase(userId)가
-// 확인됐고 checkUserId()도 이미 camelCase를 쓰고 있어 컨벤션이 섞여 있으니,
-// signup 스펙 확인되는 대로 { user_id } -> { userId }로 맞출 것.
-/** POST /api/users/signup -> { user_id } */
+/** POST /api/users/signup -> { userId } */
 export async function signup(userId, password) {
   return apiFetch(
     '/api/users/signup',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, password }),
+      body: JSON.stringify({ userId, password }),
     },
     '회원가입에 실패했습니다.',
   );
 }
 
-/** PATCH /api/users/me/password -> { passwordChangedAt } */
-export async function changePassword(token, currentPassword, newPassword) {
+/** POST /api/users/refresh -> { accessToken }
+ * Access Token이 만료됐을 때 Refresh Token으로 새 Access Token을 발급받습니다.
+ */
+export async function refreshAccessToken(refreshToken) {
   return apiFetch(
-    '/api/users/me/password',
+    '/api/users/refresh',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    },
+    'Access Token 갱신에 실패했습니다.',
+  );
+}
+
+/** PATCH /api/users/password?userId=xxx -> { passwordChangedAt } */
+export async function changePassword(token, userId, currentPassword, newPassword) {
+  return apiFetch(
+    `/api/users/password?userId=${encodeURIComponent(userId)}`,
     {
       method: 'PATCH',
       headers: {
@@ -41,6 +53,21 @@ export async function changePassword(token, currentPassword, newPassword) {
   );
 }
 
+/** POST /api/users/logout?userId=xxx -> { loggedOut: true } */
+export async function logout(token, userId) {
+  return apiFetch(
+    `/api/users/logout?userId=${encodeURIComponent(userId)}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeader(token),
+      },
+    },
+    '로그아웃에 실패했습니다.',
+  );
+}
+
 /** GET /api/users/check-id?userId=xxx -> { available: boolean } */
 export async function checkUserId(userId) {
   return apiFetch(
@@ -50,10 +77,10 @@ export async function checkUserId(userId) {
   );
 }
 
-/** DELETE /api/users/me -> { deleted: true } */
-export async function deleteAccount(token, password) {
+/** DELETE /api/users/me?userId=xxx -> { deleted: true } */
+export async function deleteAccount(token, userId, password) {
   return apiFetch(
-    '/api/users/me',
+    `/api/users/me?userId=${encodeURIComponent(userId)}`,
     {
       method: 'DELETE',
       headers: {

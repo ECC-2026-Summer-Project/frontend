@@ -68,6 +68,14 @@
   color: var(--down);
 }
 
+.starWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .starBtn {
   display: flex;
   align-items: center;
@@ -80,6 +88,13 @@
   background: var(--surface);
   color: var(--muted2);
   font-size: 16px;
+}
+
+.watchlistError {
+  color: var(--danger);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .tabs {

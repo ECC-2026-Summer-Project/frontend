@@ -1,25 +1,15 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import * as authApi from '../api/auth';
+import { loadAuth, saveAuth, clearAuth, subscribeAuth } from '../utils/authStorage';
 
 const AuthContext = createContext(null);
 
-const STORAGE_KEY = 'auth';
-
-function loadStoredAuth() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * 앱 최상단(App.jsx)에서 <AuthProvider>로 감싸서 사용합니다.
- * 상태는 useState + localStorage로만 관리합니다 (별도 상태관리 라이브러리 없음).
- */
 export function AuthProvider({ children }) {
-  const [auth, setAuth] = useState(loadStoredAuth);
+  const [auth, setAuth] = useState(loadAuth);
+
+  // client.js가 401 응답을 받아 Access Token을 자동으로 재발급했을 때도
+  // 이 Provider의 상태가 같이 갱신되도록 구독합니다.
+  useEffect(() => subscribeAuth(setAuth), []);
 
   const login = async (userId, password) => {
     const data = await authApi.login(userId, password);
@@ -28,14 +18,20 @@ export function AuthProvider({ children }) {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
     };
-    setAuth(nextAuth);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAuth));
+    saveAuth(nextAuth);
     return nextAuth;
   };
 
-  const logout = () => {
-    setAuth(null);
-    localStorage.removeItem(STORAGE_KEY);
+  const logout = async () => {
+    try {
+      if (auth?.accessToken) {
+        await authApi.logout(auth.accessToken, auth.userId);
+      }
+    } catch {
+      // 서버 측 토큰 무효화가 실패해도 클라이언트 로그아웃은 계속 진행
+    } finally {
+      clearAuth();
+    }
   };
 
   const value = {
