@@ -61,6 +61,9 @@ const mockStocks = [
 let orderIdSeq = 501;
 const mockOrders = [];
 
+// invest_lover 데모 계정이 reportId 1번을 이미 쓰고 있어 2번부터 발급
+let reportIdSeq = 2;
+
 /**
  * 문자열을 시드로 하는 결정적 난수 생성기를 돌려줍니다.
  * 호출할 때마다 0~1 사이의 값을 반환하며, 같은 시드면 항상 같은 순서로 값을 뱉습니다.
@@ -981,6 +984,77 @@ export const handlers = [
   }),
 
   //==================================레포트================================================
+  //레포트 생성-------------------------------------------------------------------
+  // 실제 백엔드는 UserActionLog/TradeHistory를 집계해 계산하지만,
+  // mock은 화면 확인용으로 간단한 더미 값을 채워 넣습니다.
+  http.post('/api/reports', ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    const foundUser = existingUsers.find(
+      (user) => user.user_id === tokenInfo?.user_id,
+    );
+
+    if (!tokenInfo || !foundUser) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const reportId = reportIdSeq++;
+    const createdAt = new Date().toISOString();
+
+    mockReports[tokenInfo.user_id] = {
+      reportId,
+      createdAt,
+
+      investmentStyle: {
+        type: '신중추종형',
+        score: 60,
+        description:
+          '추천을 참고하면서도 정보를 충분히 확인한 뒤 투자하는 성향을 보였습니다.',
+      },
+
+      investmentSummary: {
+        totalReturnRate: 0,
+        totalPurchaseAmount: 0,
+        totalEvaluationAmount: 0,
+        totalProfitLoss: 0,
+        totalTradeCount: 0,
+      },
+
+      triggerSensitivity: {
+        aiRecommendationScore: 0,
+        surgingStockScore: 0,
+        newsInformationScore: 0,
+      },
+
+      behaviorAnalysis: {
+        buyCount: 0,
+        sellCount: 0,
+        viewedNewsCount: 0,
+        aiRecommendedPurchaseCount: 0,
+      },
+
+      bestPerformingStock: { stockId: null, stockName: '-', returnRate: 0 },
+      worstPerformingStock: { stockId: null, stockName: '-', returnRate: 0 },
+
+      feedback:
+        '투자 전 충분한 정보를 확인하고 자신만의 기준에 따라 판단해 보세요.',
+    };
+
+    return HttpResponse.json(
+      { success: true, data: { reportId, createdAt }, error: null },
+      { status: 201 },
+    );
+  }),
+
   //레포트 조회-------------------------------------------------------------------
   http.get('/api/reports/:reportId', ({ request, params }) => {
     const tokenInfo = getUserIdFromToken(request);

@@ -9,6 +9,8 @@ import {
   addWatchlist,
   removeWatchlist,
 } from '../../api/stocks';
+import { createReport } from '../../api/reports';
+import { saveLatestReportId } from '../../utils/reportStorage';
 import SummaryTab from './tabs/SummaryTab';
 import OrderBookTab from './tabs/OrderBookTab';
 import ChartTab from './tabs/ChartTab';
@@ -21,7 +23,7 @@ const TABS = ['요약', '호가', '차트', '체결', '배당', '기업정보'];
 
 /** 등락률을 부호가 붙은 퍼센트 문자열로 변환합니다. */
 function formatRate(rate) {
-  return `${rate >= 0 ? '+' : ''}${rate}%`;
+  return `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
 }
 
 /** 시가총액(원)을 "OOO.O조원" 형태로 표시합니다. */
@@ -148,6 +150,14 @@ function StockDetailPage() {
         stockName: stock.name,
       });
       setOrderSide(null);
+
+      // 체결된 거래가 생길 때마다 최신 투자 심리 레포트를 새로 만들어둡니다.
+      // 매수/매도 자체는 이미 끝난 뒤라 실패해도 화면에는 알리지 않고 조용히 무시합니다.
+      if (order.status === 'FILLED') {
+        createReport(token)
+          .then((res) => saveLatestReportId(user.userId, res.reportId))
+          .catch(() => {});
+      }
     } catch (err) {
       setOrderError(err.message);
     } finally {

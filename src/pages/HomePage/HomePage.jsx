@@ -7,11 +7,9 @@ import { getSurgingStocks } from '../../api/stocks';
 import { getAiRecommendations } from '../../api/recommendations';
 import { getNews } from '../../api/news';
 import { getReport } from '../../api/reports';
+import { loadLatestReportId } from '../../utils/reportStorage';
 import pulseIcon from '../../assets/pulse.svg';
 import styles from './HomePage.module.css';
-
-// TODO: 실제로는 홈 화면 등에서 사용자의 최신 reportId를 전달받아야 함 (ReportPage.jsx와 동일한 임시값)
-const REPORT_ID = 1;
 
 // TODO: 매수 트리거 토스트도 실제로는 서버에서 받아와야 함
 const triggerToast = {
@@ -26,9 +24,9 @@ function changeClass(rate) {
   return rate >= 0 ? styles.up : styles.down;
 }
 
-/** 등락률을 부호가 붙은 퍼센트 문자열로 변환합니다. (예: 3.4 -> "+3.4%") */
+/** 등락률을 부호가 붙은 퍼센트 문자열로 변환합니다. (예: 3.4 -> "+3.40%") */
 function formatRate(rate) {
-  return `${rate >= 0 ? '+' : ''}${rate}%`;
+  return `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
 }
 
 /** 종목명 앞 2글자로 뱃지 텍스트를 만듭니다. (예: 삼성전자 -> 삼성) */
@@ -40,6 +38,8 @@ function HomePage() {
   const { user } = useAuth();
   const token = user?.accessToken;
   const navigate = useNavigate();
+  // 생성된 레포트가 아직 없는 계정(데모 계정 invest_lover 제외)은 1로 폴백
+  const reportId = loadLatestReportId(user?.userId) ?? 1;
 
   const [accountSummary, setAccountSummary] = useState(null);
   const [accountError, setAccountError] = useState('');
@@ -62,7 +62,7 @@ function HomePage() {
   useEffect(() => {
     if (!token) return undefined;
     let cancelled = false;
-    getReport(token, REPORT_ID)
+    getReport(token, reportId)
       .then(() => {
         if (!cancelled) setReportReady(true);
       })
@@ -72,7 +72,7 @@ function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, reportId]);
 
   useEffect(() => {
     if (!token) return undefined;
