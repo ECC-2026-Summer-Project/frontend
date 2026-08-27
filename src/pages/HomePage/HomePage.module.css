@@ -266,17 +266,28 @@
   list-style: none;
 }
 
+/* 구분선(가로줄)이 양옆 세로 구분선까지 닿도록 음수 마진을 준다.
+   실제 여백/클릭 영역은 안쪽 .newsLink가 가진다. */
 .newsItem {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
   margin: 0 calc(-1 * var(--col-pad));
-  padding: 12px var(--col-pad);
+  padding: 0 var(--col-pad);
   border-bottom: 1px solid var(--line);
 }
 
 .newsItem:last-child {
   border-bottom: none;
+}
+
+.newsLink {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 0;
+  transition: opacity 0.15s ease;
+}
+
+.newsLink:hover {
+  opacity: 0.75;
 }
 
 .newsCategory {
@@ -285,19 +296,10 @@
   color: var(--muted2);
 }
 
-.newsLink {
-  display: block;
-}
-
-.newsLink:hover .newsText {
-  color: var(--text);
-}
-
 .newsText {
   font-size: 12.5px;
   font-weight: 500;
   color: #dde0e6;
-  transition: color 0.15s ease;
 }
 
 /* ===== 우측: AI 추천 ===== */
