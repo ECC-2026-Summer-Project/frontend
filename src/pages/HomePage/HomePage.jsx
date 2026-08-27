@@ -110,7 +110,9 @@ function HomePage() {
     let cancelled = false;
     getPortfolioHoldings(token)
       .then((data) => {
-        if (!cancelled) setHoldings(data.holdings || []);
+        // 백엔드가 0주 종목까지 내려줘도 화면에는 실제 보유(1주 이상)만 표시
+        if (!cancelled)
+          setHoldings((data.holdings || []).filter((h) => h.quantity > 0));
       })
       .catch((err) => {
         if (!cancelled) setHoldingsError(err.message);

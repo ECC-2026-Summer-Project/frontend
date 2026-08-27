@@ -78,6 +78,21 @@
   color: var(--muted2);
 }
 
+/* 헤더 바의 각 컬럼(현재가/등락률/거래량 등)은 공용 클래스에서 var(--mono)를 물려받아
+   종목명 셀과 글씨체가 달라 보였다. 헤더 라벨은 모두 종목명과 같은 기본 서체로 통일한다. */
+.tableHead span {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted2);
+}
+
+/* '추이' 헤더 라벨은 공용 .colSpark의 height:26px(스파크라인 svg용)를 물려받아
+   글자가 위로 붙어 다른 컬럼보다 올라가 보였다. 헤더에서는 높이를 텍스트에 맞춘다. */
+.tableHead .colSpark {
+  height: auto;
+}
+
 .tableRow {
   display: flex;
   align-items: center;
