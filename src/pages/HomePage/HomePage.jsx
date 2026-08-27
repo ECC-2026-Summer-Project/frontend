@@ -220,32 +220,37 @@ function HomePage() {
 
           <ul className={styles.holdingsList}>
             {holdingsError && (
-              <li className={styles.holdingRow}>{holdingsError}</li>
+              <li className={styles.holdingEmpty}>{holdingsError}</li>
             )}
             {!holdingsError && holdings.length === 0 && (
-              <li className={styles.holdingRow}>보유한 종목이 없어요.</li>
+              <li className={styles.holdingEmpty}>보유한 종목이 없어요.</li>
             )}
             {holdings.map((holding) => (
               <li key={holding.stockId} className={styles.holdingRow}>
-                <div className={styles.holdingLeft}>
-                  <div className={styles.tickerBadge}>
-                    {tickerBadge(holding.stockName)}
+                <Link
+                  to={`/stocks/${holding.stockId}`}
+                  className={styles.holdingLink}
+                >
+                  <div className={styles.holdingLeft}>
+                    <div className={styles.tickerBadge}>
+                      {tickerBadge(holding.stockName)}
+                    </div>
+                    <div className={styles.hInfo}>
+                      <p className={styles.holdingName}>{holding.stockName}</p>
+                      <p className={styles.holdingShares}>
+                        {holding.quantity}주 보유
+                      </p>
+                    </div>
                   </div>
-                  <div className={styles.hInfo}>
-                    <p className={styles.holdingName}>{holding.stockName}</p>
-                    <p className={styles.holdingShares}>
-                      {holding.quantity}주 보유
+                  <div className={styles.holdingRight}>
+                    <p className={styles.holdingPrice}>
+                      {holding.currentPrice.toLocaleString('ko-KR')}
+                    </p>
+                    <p className={changeClass(holding.changeRate)}>
+                      {formatRate(holding.changeRate)}
                     </p>
                   </div>
-                </div>
-                <div className={styles.holdingRight}>
-                  <p className={styles.holdingPrice}>
-                    {holding.currentPrice.toLocaleString('ko-KR')}
-                  </p>
-                  <p className={changeClass(holding.changeRate)}>
-                    {formatRate(holding.changeRate)}
-                  </p>
-                </div>
+                </Link>
               </li>
             ))}
           </ul>
@@ -262,9 +267,9 @@ function HomePage() {
 
             <div className={styles.table}>
               <div className={styles.tableHead}>
-                <span className={styles.tableHeadStock}>종목</span>
-                <span>현재가</span>
-                <span>등락률</span>
+                <span className={styles.colStock}>종목</span>
+                <span className={styles.colPrice}>현재가</span>
+                <span className={styles.colRate}>등락률</span>
               </div>
               {trendingError && (
                 <p className={styles.stockName}>{trendingError}</p>
@@ -274,18 +279,25 @@ function HomePage() {
               )}
               {trendingStocks.map((stock) => (
                 <div key={stock.stockId} className={styles.tableRow}>
-                  <div className={styles.stockNameWrap}>
-                    <p className={styles.stockName}>{stock.stockName}</p>
-                    <span className={`${styles.tag} ${styles.tagUp}`}>
-                      급등
-                    </span>
-                  </div>
-                  <p className={styles.stockPrice}>
-                    {stock.currentPrice.toLocaleString('ko-KR')}
-                  </p>
-                  <p className={changeClass(stock.changeRate)}>
-                    {formatRate(stock.changeRate)}
-                  </p>
+                  <Link
+                    to={`/stocks/${stock.stockId}`}
+                    className={styles.tableRowLink}
+                  >
+                    <div className={`${styles.colStock} ${styles.stockNameWrap}`}>
+                      <p className={styles.stockName}>{stock.stockName}</p>
+                      <span className={`${styles.tag} ${styles.tagUp}`}>
+                        급등
+                      </span>
+                    </div>
+                    <p className={`${styles.colPrice} ${styles.stockPrice}`}>
+                      {stock.currentPrice.toLocaleString('ko-KR')}
+                    </p>
+                    <p
+                      className={`${styles.colRate} ${changeClass(stock.changeRate)}`}
+                    >
+                      {formatRate(stock.changeRate)}
+                    </p>
+                  </Link>
                 </div>
               ))}
             </div>
