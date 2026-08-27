@@ -40,7 +40,6 @@ function SettingPage() {
   const [currentPasswordError, setCurrentPasswordError] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [showLoggedOutModal, setShowLoggedOutModal] = useState(false);
   const [showPasswordChangedModal, setShowPasswordChangedModal] =
     useState(false);
 
@@ -57,13 +56,8 @@ function SettingPage() {
     setShowLogoutModal(false);
   };
 
-  const Logout = () => {
+  const Logout = async () => {
     setShowLogoutModal(false);
-    setShowLoggedOutModal(true);
-  };
-
-  const confirmLoggedOut = async () => {
-    setShowLoggedOutModal(false);
     await logout();
     navigate('/login');
   };
@@ -243,19 +237,6 @@ function SettingPage() {
           </Button>
           <Button variant="dangerSolid" onClick={Logout}>
             로그아웃
-          </Button>
-        </div>
-      </Modal>
-
-      <Modal
-        open={showLoggedOutModal}
-        onClose={confirmLoggedOut}
-        title="로그아웃되었습니다"
-        showCloseButton={false}
-      >
-        <div className={styles.modalActions}>
-          <Button variant="primary" onClick={confirmLoggedOut}>
-            확인
           </Button>
         </div>
       </Modal>

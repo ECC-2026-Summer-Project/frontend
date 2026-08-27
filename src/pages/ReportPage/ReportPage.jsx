@@ -3,10 +3,8 @@ import { Link } from 'react-router-dom';
 import Header from '../../components/layout/Header/Header';
 import { useAuth } from '../../hooks/useAuth';
 import { getReport } from '../../api/reports';
+import { loadLatestReportId } from '../../utils/reportStorage';
 import styles from './ReportPage.module.css';
-
-// TODO: 실제로는 홈 화면 등에서 사용자의 최신 reportId를 전달받아야 함
-const REPORT_ID = 1;
 
 const TYPE_EMOJI = {
   군중심리형: '🟪',
@@ -53,7 +51,7 @@ function formatSignedWon(n) {
 }
 
 function formatRate(rate) {
-  return `${rate >= 0 ? '+' : ''}${rate}%`;
+  return `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
 }
 
 function formatDate(iso) {
@@ -78,6 +76,8 @@ function signClass(n) {
 function ReportPage() {
   const { user } = useAuth();
   const token = user?.accessToken;
+  // 생성된 레포트가 아직 없는 계정(데모 계정 invest_lover 제외)은 1로 폴백
+  const reportId = loadLatestReportId(user?.userId) ?? 1;
 
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -96,7 +96,7 @@ function ReportPage() {
     setError('');
     setNotGenerated(false);
 
-    getReport(token, REPORT_ID)
+    getReport(token, reportId)
       .then((data) => {
         if (!cancelled) setReport(data);
       })
@@ -115,7 +115,7 @@ function ReportPage() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, reportId]);
 
   if (loading) {
     return (

@@ -62,7 +62,7 @@ function sparkPoints(stockId) {
 
 /** 등락률을 부호가 붙은 퍼센트 문자열로 변환합니다. */
 function formatRate(rate) {
-  return `${rate >= 0 ? '+' : ''}${rate}%`;
+  return `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
 }
 
 function StockListPage() {
