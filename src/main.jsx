@@ -6,10 +6,10 @@ import { Global } from '@emotion/react';
 
 function renderApp() {
   createRoot(document.getElementById('root')).render(
-    <div>
+    <>
       <Global />
       <App />
-    </div>,
+    </>,
   );
 }
 

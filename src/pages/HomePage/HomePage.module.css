@@ -7,7 +7,8 @@
 
 .homeBody {
   display: flex;
-  align-items: flex-start;
+  /* align-items: stretch(기본)로 세 컬럼이 같은 높이가 되어,
+     컬럼 사이 세로 구분선이 화면 아래까지 이어진다. */
   flex: 1;
 }
 
@@ -35,12 +36,15 @@
 }
 
 .colLeft {
+  /* 컬럼 안쪽 좌우 여백. 구분선(가로줄)은 이 값만큼 음수 마진을 줘
+     양옆 세로 구분선까지 꽉 차게 그어지도록 한다. (하위 요소로 상속됨) */
+  --col-pad: 26px;
   display: flex;
   flex-direction: column;
   gap: 22px;
   width: 300px;
   flex-shrink: 0;
-  padding: 28px 26px;
+  padding: 28px var(--col-pad);
   border-right: 1px solid var(--line);
 }
 
@@ -95,7 +99,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 0;
+  margin: 0 calc(-1 * var(--col-pad));
+  padding: 11px var(--col-pad);
   border-bottom: 1px solid var(--line);
 }
 
@@ -161,12 +166,13 @@
 }
 
 .colCenter {
+  --col-pad: 26px;
   display: flex;
   flex-direction: column;
   gap: 28px;
   flex: 1 0 0;
   min-width: 0;
-  padding: 28px 26px;
+  padding: 28px var(--col-pad);
 }
 
 .trendingSection {
@@ -186,7 +192,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
+  margin: 0 calc(-1 * var(--col-pad));
+  padding: 10px var(--col-pad);
   border-bottom: 1px solid var(--line);
   font-size: 11px;
   font-weight: 700;
@@ -201,7 +208,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 0;
+  margin: 0 calc(-1 * var(--col-pad));
+  padding: 14px var(--col-pad);
   border-bottom: 1px solid var(--line);
 }
 
@@ -262,7 +270,8 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  padding: 12px 0;
+  margin: 0 calc(-1 * var(--col-pad));
+  padding: 12px var(--col-pad);
   border-bottom: 1px solid var(--line);
 }
 
