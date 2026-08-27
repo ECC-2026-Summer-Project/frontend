@@ -23,6 +23,17 @@
   color: var(--down);
 }
 
+.flat {
+  composes: up;
+  color: var(--muted);
+}
+
+.changeCaption {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted2);
+}
+
 .colLeft {
   display: flex;
   flex-direction: column;
@@ -265,10 +276,19 @@
   color: var(--muted2);
 }
 
+.newsLink {
+  display: block;
+}
+
+.newsLink:hover .newsText {
+  color: var(--text);
+}
+
 .newsText {
   font-size: 12.5px;
   font-weight: 500;
   color: #dde0e6;
+  transition: color 0.15s ease;
 }
 
 /* ===== 우측: AI 추천 ===== */

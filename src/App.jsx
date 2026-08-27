@@ -3,6 +3,7 @@ import OnboardingPage from './pages/OnboardingPage/OnboardingPage';
 import SignupPage from './pages/SignupPage/SignupPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import HomePage from './pages/HomePage/HomePage';
+import NewsDetailPage from './pages/NewsDetailPage/NewsDetailPage';
 import ReportPage from './pages/ReportPage/ReportPage';
 import StockListPage from './pages/StockListPage/StockListPage';
 import StockDetailPage from './pages/StockDetailPage/StockDetailPage';
@@ -28,6 +29,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="/home" element={<HomePage />} />
+            <Route path="/news/:newsId" element={<NewsDetailPage />} />
             <Route path="/report" element={<ReportPage />} />
             <Route path="/stocks" element={<StockListPage />} />
             <Route path="/stocks/:stockId" element={<StockDetailPage />} />

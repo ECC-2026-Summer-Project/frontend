@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { markOnboardingSeen } from '../../utils/onboardingStorage';
+import { INITIAL_SEED_MONEY } from '../../constants/account';
 import styles from './OnboardingPage.module.css';
 
 const TOTAL_STEPS = 3;
-const SIGNUP_BONUS = 10000000;
+const SIGNUP_BONUS = INITIAL_SEED_MONEY;
 
 const EVENT_ICONS = [
   { emoji: '🔥', className: styles.iconFire },

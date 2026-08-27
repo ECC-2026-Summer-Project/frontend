@@ -171,6 +171,41 @@ const mockReports = {
   },
 };
 
+// 실시간 뉴스 목록 (실제 백엔드는 수집된 뉴스를 내려주지만, mock은 고정 더미)
+const mockNews = [
+  {
+    newsId: 1,
+    title: '에코프로, 2분기 실적 시장 기대치 상회… 주가 강세',
+    content:
+      '에코프로가 2분기 영업이익이 전년 동기 대비 크게 늘며 시장 컨센서스를 웃돌았다. 증권가에서는 하반기 양극재 출하량 증가와 판가 안정화에 힘입어 실적 개선세가 이어질 것으로 내다봤다.',
+    publishedAt: '2026-08-27T09:10:00',
+  },
+  {
+    newsId: 2,
+    title: '삼성전자, HBM 신규 공급 계약 임박 보도',
+    content:
+      '삼성전자가 주요 고객사와 차세대 고대역폭메모리(HBM) 공급 계약 체결을 눈앞에 두고 있다는 보도가 나왔다. 회사 측은 "고객사와 관련해 확인해줄 수 없다"는 입장이다.',
+    publishedAt: '2026-08-27T08:40:00',
+  },
+  {
+    newsId: 3,
+    title: '美 연준 인사 "금리 인하 신중해야"… 위험자산 변동성 확대',
+    content:
+      '미국 연방준비제도 고위 인사가 물가 둔화 흐름이 확인되기 전까지 금리 인하에 신중해야 한다고 발언하면서 글로벌 증시가 출렁였다. 국내 증시도 외국인 매도세가 이어지며 약세를 보였다.',
+    publishedAt: '2026-08-27T07:55:00',
+  },
+  {
+    newsId: 4,
+    title: '2차전지 관련주, 정책 기대감에 동반 상승',
+    content:
+      '정부가 이차전지 산업 지원 방안을 검토 중이라는 소식에 관련주가 일제히 강세를 나타냈다. 다만 일부 종목은 단기 급등에 따른 차익 실현 매물도 함께 출회됐다.',
+    publishedAt: '2026-08-27T07:20:00',
+  },
+];
+
+// user_id -> 상세 화면을 연(=열람이 시작된) 뉴스 ID 집합. views(체류시간) 기록 전 검증용.
+const newsViewStarted = {};
+
 // 탈퇴 등으로 무효화된 토큰 목록 (재사용 방지)
 const invalidatedTokens = new Set();
 
@@ -1096,5 +1131,119 @@ export const handlers = [
       { success: true, data: report },
       { status: 200 },
     );
+  }),
+
+  //==================================뉴스================================================
+  //뉴스 목록 조회-------------------------------------------------------------------
+  http.get('/api/news', ({ request }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const url = new URL(request.url);
+    const excludeParam = url.searchParams.get('excludeNewsIds');
+    const excludeIds = excludeParam
+      ? excludeParam.split(',').map((id) => Number(id.trim()))
+      : [];
+
+    const items = mockNews
+      .filter((item) => !excludeIds.includes(item.newsId))
+      .map(({ newsId, title }) => ({ newsId, title }));
+
+    return HttpResponse.json({ success: true, data: items }, { status: 200 });
+  }),
+
+  //뉴스 상세 조회-------------------------------------------------------------------
+  http.get('/api/news/:newsId', ({ request, params }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const newsId = Number(params.newsId);
+    const found = mockNews.find((item) => item.newsId === newsId);
+    if (!found) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: { code: 'NEWS_NOT_FOUND', message: '존재하지 않는 뉴스입니다.' },
+        },
+        { status: 404 },
+      );
+    }
+
+    // 상세를 조회하면 열람이 시작된 것으로 보고, 이후 views(체류시간) 기록을 허용합니다.
+    (newsViewStarted[tokenInfo.user_id] ??= new Set()).add(newsId);
+
+    return HttpResponse.json({ success: true, data: found }, { status: 200 });
+  }),
+
+  //뉴스 열람 시간 기록-------------------------------------------------------------------
+  http.post('/api/news/:newsId/views', async ({ request, params }) => {
+    const tokenInfo = getUserIdFromToken(request);
+    if (!tokenInfo) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: '인증 정보가 유효하지 않습니다.',
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    const newsId = Number(params.newsId);
+    const found = mockNews.find((item) => item.newsId === newsId);
+    if (!found) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: { code: 'NEWS_NOT_FOUND', message: '존재하지 않는 뉴스입니다.' },
+        },
+        { status: 404 },
+      );
+    }
+
+    if (!newsViewStarted[tokenInfo.user_id]?.has(newsId)) {
+      return HttpResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'NEWS_VIEW_NOT_STARTED',
+            message: '뉴스 열람이 시작되지 않았습니다.',
+          },
+        },
+        { status: 400 },
+      );
+    }
+
+    return HttpResponse.json({ success: true, data: null }, { status: 200 });
   }),
 ];

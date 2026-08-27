@@ -8,6 +8,7 @@ import { getAiRecommendations } from '../../api/recommendations';
 import { getNews } from '../../api/news';
 import { getReport } from '../../api/reports';
 import { loadLatestReportId } from '../../utils/reportStorage';
+import { INITIAL_SEED_MONEY } from '../../constants/account';
 import pulseIcon from '../../assets/pulse.svg';
 import styles from './HomePage.module.css';
 
@@ -19,14 +20,29 @@ const triggerToast = {
 
 const NEWS_REFRESH_MS = 90000;
 
-/** 등락률이 상승(빨강)인지 하락(파랑)인지에 맞는 클래스명을 반환합니다. */
+/** 등락률이 상승(빨강)인지 하락(파랑)인지 보합(회색)인지에 맞는 클래스명을 반환합니다. */
 function changeClass(rate) {
-  return rate >= 0 ? styles.up : styles.down;
+  if (rate === 0) return styles.flat;
+  return rate > 0 ? styles.up : styles.down;
 }
 
 /** 등락률을 부호가 붙은 퍼센트 문자열로 변환합니다. (예: 3.4 -> "+3.40%") */
 function formatRate(rate) {
-  return `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
+  const sign = rate > 0 ? '+' : '';
+  return `${sign}${rate.toFixed(2)}%`;
+}
+
+/** 원 단위 금액을 부호가 붙은 문자열로 변환합니다. (예: -3000 -> "-3,000원") */
+function formatSignedWon(amount) {
+  const sign = amount > 0 ? '+' : '';
+  return `${sign}${amount.toLocaleString('ko-KR')}원`;
+}
+
+/** 총 평가자산이 원금 대비 얼마나 변동했는지(실현+평가 손익)를 계산합니다. */
+function getTotalChange(totalAssetAmount) {
+  const amount = totalAssetAmount - INITIAL_SEED_MONEY;
+  const rate = (amount / INITIAL_SEED_MONEY) * 100;
+  return { amount, rate };
 }
 
 /** 종목명 앞 2글자로 뱃지 텍스트를 만듭니다. (예: 삼성전자 -> 삼성) */
@@ -174,17 +190,22 @@ function HomePage() {
             ) : !accountSummary ? (
               <p className={styles.cardValue}>불러오는 중...</p>
             ) : (
-              <>
-                <p className={styles.cardValue}>
-                  {accountSummary.totalAssetAmount.toLocaleString('ko-KR')}원
-                </p>
-                <p className={changeClass(accountSummary.totalReturnRate)}>
-                  {accountSummary.totalProfitLoss >= 0 ? '▲' : '▼'}{' '}
-                  {accountSummary.totalProfitLoss >= 0 ? '+' : ''}
-                  {accountSummary.totalProfitLoss.toLocaleString('ko-KR')}원 (
-                  {formatRate(accountSummary.totalReturnRate)})
-                </p>
-              </>
+              (() => {
+                const change = getTotalChange(accountSummary.totalAssetAmount);
+                return (
+                  <>
+                    <p className={styles.cardValue}>
+                      {accountSummary.totalAssetAmount.toLocaleString('ko-KR')}원
+                    </p>
+                    <p className={changeClass(change.amount)}>
+                      {change.amount > 0 ? '▲ ' : change.amount < 0 ? '▼ ' : ''}
+                      {formatSignedWon(change.amount)} (
+                      {formatRate(change.rate)})
+                    </p>
+                    <p className={styles.changeCaption}>원금 대비 총 손익</p>
+                  </>
+                );
+              })()
             )}
           </div>
 
@@ -277,7 +298,12 @@ function HomePage() {
               )}
               {news.map((item) => (
                 <li key={item.newsId} className={styles.newsItem}>
-                  <p className={styles.newsText}>{item.title}</p>
+                  <Link
+                    to={`/news/${item.newsId}`}
+                    className={styles.newsLink}
+                  >
+                    <p className={styles.newsText}>{item.title}</p>
+                  </Link>
                 </li>
               ))}
             </ul>
